@@ -1,0 +1,128 @@
+-- test_gui.lmod
+
+local mod = do_module("mod_base.lmod")
+
+-- routines
+
+
+function mod.init()
+
+	mod.y = 16
+	mod.h = mod.sh - 16
+	
+	mod.win  = gui.createWindow( mod.x , mod.y , mod.w , mod.h )
+	mod.box  = gui.createBox( 0 , 0 , mod.w , mod.h )
+		
+	
+	local x = mod.w * 0.1
+	local y = mod.h * 0.1
+
+	mod.text = gui.createText ( x , y , "PLEASE ENTER YOUR NAME" )
+	
+	y = y + 25
+	
+	mod.textedit = gui.createTextEdit ( x , y , mod.w - (x*2) , 20 , "None" )
+
+	x = mod.w * 0.8
+	y = mod.h * 0.8
+
+	mod.button = gui.createButton ( x , y , 30 , 20 , "OK" )
+
+	gui.appendChild ( mod.box , mod.text )
+	gui.appendChild ( mod.box , mod.textedit )
+	gui.appendChild ( mod.box , mod.button )
+	gui.append ( mod.win , mod.box )
+
+	gui.setFocus ( mod.win , nil )
+	gui.viewFocus ( mod.win , true )
+	
+	mod.focusList = { nil , mod.textedit , mod.button }
+	mod.focusPos = 1
+	
+	gui.setUpdate ( mod.win )
+
+	mod.keyboard = do_module("keyboard.lmod")
+	mod.dialog = do_module("diag.lmod")
+end
+
+
+function mod.checkNotify()
+	if mod.keyboard.isDone()
+	then
+		if gui.getFocus ( mod.win ) == mod.textedit
+		then
+			local result = mod.keyboard.getResult()
+			gui.setText ( mod.textedit , result )
+		end
+		
+		mod.keyboard.reset()
+
+		gui.setUpdate ( mod.win )
+	end
+	if mod.dialog.isDone()
+	then
+		if mod.dialog.getResult() == 1 then
+			mod.doFinish()
+		end
+		mod.dialog.reset()
+		
+		gui.setUpdate ( mod.win )
+		
+	end
+	
+end
+
+function mod.moveFocus()
+	local obj = mod.focusList [ mod.focusPos ]
+	
+	gui.setFocus ( mod.win , obj )
+	gui.setUpdate ( mod.win )
+end
+
+function mod.checkKey()
+	if key.Left() or key.Up()
+	then
+		if mod.focusPos == 1 then
+			mod.focusPos = #mod.focusList
+		else
+			mod.focusPos = mod.focusPos - 1
+		end
+		
+		mod.moveFocus()
+	end
+	
+	
+	if key.Right() or key.Down()
+	then
+		if mod.focusPos == #mod.focusList then
+			mod.focusPos = 1
+		else
+			mod.focusPos = mod.focusPos + 1
+		end
+		
+		mod.moveFocus()
+	end
+		
+
+	if key.A() 
+	then
+		if gui.getFocus ( mod.win ) == mod.textedit 
+		then
+			mod.keyboard.start()
+			mod.keyboard.setString( gui.getText ( mod.textedit ) )
+		end
+		if gui.getFocus ( mod.win ) == mod.button
+		then
+			mod.dialog.start()
+			mod.dialog.setMessage("QUIT THIS PROGRAM?")
+			mod.dialog.setButtons({"YES","NO"})
+		end
+	end
+	
+	if key.Select()
+	then
+		mod.doFinish()
+	end
+end
+
+return mod

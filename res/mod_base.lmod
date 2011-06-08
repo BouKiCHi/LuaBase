@@ -1,0 +1,147 @@
+-- mod_base.lua 
+
+local mod = {}
+
+function mod.start()
+	mod.quit = false
+	mod.restore = {}
+	mod.restore.update = update
+	
+	mod.initConfig()
+	
+	mod.sw = graph.Width()
+	mod.sh = graph.Height()
+
+	mod.x = 0
+	mod.y = 0
+	mod.w = mod.sw
+	mod.h = mod.sh
+
+	mod.restore.surf  = graph.CreateSurf ( mod.sw , mod.sh )
+	graph.CopySurfAll( graph.MainSurf() , mod.restore.surf )
+	
+	update = mod.update
+	
+	mod.key = keyRepeat.new()
+	mod.delay_ms = 5
+	
+	mod.result = nil
+	
+	mod.reset()
+	
+	mod.init()
+	
+end
+
+function mod.back()
+	mod.saveConfig()
+
+	mod.quit = false
+	graph.CopySurfAll( mod.restore.surf ,  graph.MainSurf() ) 
+	graph.FreeSurf( mod.restore.surf )
+
+	mod.free()
+	update = mod.restore.update
+		
+	mod.done = true
+end
+
+function mod.initConfig()
+
+	mod.config = {}
+	mod.config.update = false
+	
+	local base = file_basename ( mod.moduleFile )
+	mod.config.path = config.getConfigPath( base .. ".conf" )
+	
+	mod.readConfig()
+	
+end
+
+function mod.readConfig()
+	mod.config.data = config.load ( mod.config.path )
+end
+
+function mod.saveConfig()
+	if mod.config.update
+	then
+		config.save ( mod.config.path , mod.config.data )	
+	end
+
+end
+
+function mod.setConfigValue ( key , value )
+	mod.config.data[ key ] = value
+	mod.config.update = true
+end
+
+
+function mod.getConfigValue ( key )
+	return mod.config.data [ key ]
+end
+
+function mod.getResult()
+	return mod.result
+end
+
+function mod.setResult( result )
+	mod.result = result
+end
+
+function mod.doFinish()
+	mod.quit = true
+end
+
+function mod.isDone()
+	return mod.done
+end
+
+function mod.reset()
+	mod.done = false
+end
+
+function mod.ignoreKey()
+	keyRepeat.reset ( mod.key )
+end
+
+function mod.update()
+	if mod.interval then
+		mod.interval()
+	end
+
+	if mod.win then
+		gui.update ( mod.win )
+	end
+	
+	layer.update()
+	
+	if mod.checkNotify then
+		mod.checkNotify()
+	end
+	
+	local keydata = key.Read()
+	
+	if keydata == 0 and mod.quit
+	then
+		mod.back()
+	end
+	
+	if keyRepeat.isUpdate( mod.key ) and mod.checkKey
+	then
+	
+		mod.checkKey()	
+	end
+	
+	if  keydata ~= 0 and mod.delay_ms > 0 and (not mod.win or not gui.isUpdate ( mod.win )) 
+	then
+			system.Delay(mod.delay_ms)
+	end
+end
+
+function mod.init()
+end
+
+function mod.free()
+end
+
+return mod

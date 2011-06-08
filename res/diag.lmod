@@ -1,0 +1,114 @@
+-- diag.lua
+
+local mod = do_module("mod_base.lmod")
+
+-- routines
+
+function mod.init()
+
+	
+	mod.w = 200
+	mod.h = 120
+	mod.x = (mod.sw / 2 ) - ( mod.w / 2 ) 
+	mod.y = (mod.sh / 2 ) - ( mod.h / 2 ) 
+
+	mod.win = gui.createWindow( mod.x , mod.y , mod.w , mod.h )
+
+	mod.box = gui.createBox( 0 , 0 , mod.w , mod.h )
+	
+	mod.diag = gui.createButton ( 0 , 0 , mod.w , mod.h , "THIS IS DIAG.LMOD" )
+
+	mod.buttons = {}
+
+	mod.setButtons({"OK"})
+	-- mod.setButtons({"OK","CANCEL"})
+	-- mod.setButtons({"ABORT","CANCEL","IGNORE"})
+	mod.moveFocus()
+
+	gui.appendChild ( mod.box , mod.diag  )
+
+	gui.viewFocus ( mod.win , true )
+
+
+	gui.append ( mod.win , mod.box  )
+	
+end
+
+function mod.setButtons ( names )
+
+	local i,k,v
+
+	for k,v in pairs( mod.buttons )
+	do
+		gui.removeObject( mod.win , v )
+	end
+	
+	mod.buttons = {}
+
+	local bt_w = 50
+	local bt_h = 20	
+	local bt_y = (mod.h - (bt_h * 1.5 ))
+	
+	local xs = (mod.w - (bt_w * #names)) / (#names + 1)
+	local bt_x = xs
+
+	
+	for i = 1,#names
+	do
+		local obj = gui.createButton ( bt_x , bt_y , bt_w , bt_h , names[i] )
+		bt_x = bt_x + bt_w + xs
+		gui.appendChild ( mod.diag , obj )
+		table.insert( mod.buttons , obj )
+	end
+	
+	mod.pos = 1
+	mod.moveFocus()
+end
+
+function mod.setMessage( msg )
+	gui.setText ( mod.diag , msg )
+	gui.setUpdate ( mod.win )
+end
+
+
+function mod.moveFocus()
+	local obj = mod.buttons [ mod.pos ]
+	
+	gui.setFocus ( mod.win , obj )
+	gui.setUpdate ( mod.win )
+end
+
+
+function mod.checkKey()
+	if key.Left() or key.Up()
+	then
+		if mod.pos == 1 then
+			mod.pos = #mod.buttons
+		else
+			mod.pos = mod.pos - 1
+		end
+		mod.moveFocus()
+	end
+
+	if key.Right() or key.Down()
+	then
+		if mod.pos == #mod.buttons then
+			mod.pos = 1
+		else
+			mod.pos = mod.pos + 1
+		end
+		mod.moveFocus()
+	end
+	
+	if key.B() or key.Select() then
+		mod.setResult( -1 )
+		mod.doFinish()
+	end	
+
+	if key.A() then
+		mod.setResult( mod.pos ) 
+		mod.doFinish()
+	end
+end
+
+return mod

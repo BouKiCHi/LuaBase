@@ -1,0 +1,75 @@
+-- custom.lmod
+
+local mod = do_module("mod_base.lmod")
+
+-- routines
+
+function mod.init()
+
+	mod.y = 16
+	mod.h = mod.sh - 16
+
+	mod.win = gui.createWindow( mod.x , mod.y , mod.w , mod.h )
+	mod.box = gui.createBox( 0 , 0 , mod.w , mod.h )
+	mod.view = gui.createView ( 0 , 0 , mod.w , mod.h )
+
+	gui.appendChild ( mod.box , mod.view )
+	gui.append ( mod.win , mod.box )
+	
+	gui.setDrawer( mod.view , mod.drawer )
+	
+	mod.color = graph.Color ( 0xff , 0xff , 0xff )
+	
+	mod.angle = -90
+	
+	mod.delay_ms = 0
+end
+
+function mod.drawer( win , bx , by , obj )
+	if obj.hide then
+		return
+	end
+	
+	local x = bx + obj.size.x
+	local y = by + obj.size.y
+	local w = obj.size.w
+	local h = obj.size.h
+	
+	local cx = x + (w/2)
+	local cy = y + (h/2)
+
+	local angle = mod.angle
+
+	local n = 8
+	local px,py
+	px = {}
+	py = {}
+	
+	for i = 1,n do
+		local radx = (2 * 3.14 / 360) * angle
+		local zx = cx + (math.cos ( radx ) * 50)
+		local zy = cy + (math.sin ( radx ) * 50)
+		
+		table.insert ( px , zx )
+		table.insert ( py , zy )
+		
+		angle = angle + (360 / n)
+	end
+	
+	graph.Poly( px , py , mod.color )
+end
+
+function mod.interval()
+	mod.angle = mod.angle + 5
+	gui.setUpdate ( mod.win )
+end
+
+function mod.checkKey()
+
+	if key.A() or key.B() or key.Select()
+	then
+		mod.doFinish()
+	end
+end
+
+return mod

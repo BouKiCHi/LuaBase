@@ -1,0 +1,285 @@
+-- iconlist.lmod
+
+local mod = do_module("mod_base.lmod")
+
+-- routines
+
+function mod.init()
+
+	mod.w = mod.sw
+	mod.h = mod.sh - 16
+	
+	mod.win = gui.createWindow( 0 , 16 , mod.w , mod.h )
+	mod.box = gui.createBox   ( 0 , 0  , mod.w , mod.h )
+	
+	gui.viewFocus ( mod.win , true )
+	
+	gui.append ( mod.win , mod.box )	
+
+	mod.call = nil
+	
+	mod.readIconFiles( file_respath( "icon" )  )
+
+
+	mod.col = 4
+	mod.row = 4
+	mod.yofs = 3
+	
+	mod.makeIconTable()
+	
+	mod.redrawIcon()
+
+end
+
+function mod.setIconList ( images , names )
+
+	mod.icon = {}
+	mod.icon.image = images
+	mod.icon.name  = names
+	mod.icon.top = 1	
+end
+
+function mod.readIconFiles( path )
+
+	mod.readDir( path );
+	
+	local icon_image = {}
+	local icon_name = {}
+	
+	for i = 1,#mod.files do
+		local fi = mod.files[i]
+		
+		if not fi.isdir then
+			-- print(fi.name)
+			local ext = file_ext ( fi.name )
+			
+			if ext == "png" or ext == "bmp" or ext == "jpg"
+			then
+				local icon = graph.ImgLoad( path .. system.PathDiv() .. fi.name )
+				if icon then
+					table.insert( icon_image , icon )
+					table.insert( icon_name , string.match(fi.name,"(.*)\.png"))
+				end
+			end				
+		end
+	end
+	
+	mod.setIconList ( icon_image , icon_name )
+
+end
+
+function mod.makeIconTable()
+
+	mod.iobjs = {}
+	mod.tobjs = {}
+	mod.tobjpos = {}
+
+	local iw = 32
+	local col = mod.col
+	local xspace = mod.w - (iw * col)
+	
+	local ih = 32
+	local row = mod.row
+	local yspace = mod.h - (ih * row)
+
+	local wsx = xspace / (col + 1)
+	local wsy = yspace / (row + 1)
+	
+	local ix = 0
+	local iy = wsy
+	
+	local inum = 1
+	
+	for j = 1,row do
+		ix = wsx
+		for i = 1,col do
+
+			local img = gui.createImage ( ix , iy , nil )
+			
+			gui.appendChild( mod.box , img )
+
+			local text = gui.createButton ( ix , iy + ih , 0 , 0 , nil )
+			gui.setDrawBox( text , false )
+			gui.setLineLim( text , 10 )
+
+			gui.setAssign ( text , gui.assign.center , gui.assign.top )
+			gui.setFont ( text , "small" )
+			gui.resizeByText ( text )
+
+			local w,h = gui.getSize ( text )			
+			gui.setPosition ( text , ix + (iw / 2) - (w/2) , iy + ih)			
+			gui.appendChild( mod.box , text )
+			
+
+			table.insert ( mod.tobjpos, { ix , iy } )
+
+			ix = ix + iw + wsx
+			inum = inum + 1
+			
+			table.insert ( mod.iobjs , img )
+			table.insert ( mod.tobjs , text )
+			
+		end
+		iy = iy + ih + wsy
+	end	
+	
+	mod.iw = iw
+	mod.ih = ih
+	
+	mod.cursor = {}
+	mod.cursor.x = 1
+	mod.cursor.y = 1
+
+	mod.appearCursor()
+
+end
+
+
+function mod.hideCursor()
+	local obj = mod.tobjs [ ((mod.cursor.y-1) * mod.col) + mod.cursor.x ] 
+	gui.setDrawBox( obj , false )
+	gui.setUpdate( mod.win )
+
+end
+
+
+function mod.appearCursor()
+	local obj = mod.tobjs [ ((mod.cursor.y-1) * mod.col) + mod.cursor.x ]
+	gui.setDrawBox( obj , true )
+	
+	gui.setFocus ( mod.win , obj )
+	gui.setUpdate( mod.win )
+
+end
+
+function mod.redrawIcon()
+
+	local inum = mod.icon.top
+	
+	for i = 1,#mod.iobjs
+	do
+		local icon = mod.iobjs[ i ]
+		local text = mod.tobjs[ i ]
+
+		gui.setImage ( icon , mod.icon.image[inum] )
+		gui.setText  ( text , mod.icon.name[inum] )
+
+		gui.resizeByText ( text )
+		local x,y = unpack( mod.tobjpos[i] )
+		local w,h = gui.getSize ( text )
+		
+		gui.setPosition ( text , x + (mod.iw / 2) - ( w / 2 ) , y + mod.ih + mod.yofs )
+		
+		inum = inum + 1
+	end
+	
+	gui.setUpdate( mod.win )
+end
+
+function mod.moveLeft()
+	if mod.cursor.x > 1 then
+		mod.hideCursor()
+		mod.cursor.x = mod.cursor.x - 1
+		mod.appearCursor()
+	end
+end
+
+function mod.iconLeft( y )
+	return #mod.icon.image - (mod.icon.top - 1) - ( ( y - 1 ) * mod.col )
+end
+
+function mod.moveRight()
+	if mod.cursor.x < mod.col and mod.cursor.x < mod.iconLeft(mod.cursor.y) then
+		mod.hideCursor()
+		mod.cursor.x = mod.cursor.x + 1
+		mod.appearCursor()
+	end
+end
+
+function mod.moveUp()
+	if mod.cursor.y > 1 then
+		mod.hideCursor()
+		mod.cursor.y = mod.cursor.y - 1
+		mod.appearCursor()
+	elseif mod.icon.top - mod.col >= 1 then
+		mod.icon.top = mod.icon.top - mod.col
+		mod.redrawIcon()
+	end
+end
+
+function mod.moveDown()
+	if mod.cursor.y < mod.row and mod.cursor.x <= mod.iconLeft(mod.cursor.y + 1)  then
+		mod.hideCursor()
+		mod.cursor.y = mod.cursor.y + 1
+		mod.appearCursor()
+	elseif mod.icon.top + #mod.iobjs < #mod.icon.image then
+		mod.icon.top = mod.icon.top + mod.col
+		mod.redrawIcon()
+	end
+end
+
+
+function mod.checkKey()
+	if key.Left()
+	then
+		mod.moveLeft()
+	end
+	if key.Right()
+	then
+		mod.moveRight()
+	end
+
+	if key.Up()
+	then
+		mod.moveUp()
+	end
+	if key.Down()
+	then
+		mod.moveDown()
+	end
+	
+	if key.A()
+	then
+		local result = mod.icon.top + (((mod.cursor.y-1) * mod.col) + (mod.cursor.x-1) )
+		mod.setResult(result)
+		mod.doFinish()
+	end
+	if key.Select()
+	then
+		mod.setResult(-1)
+		mod.doFinish()
+	end
+
+end
+
+
+function mod.readDir( path )
+	local list = {}
+	local dir = system.OpenDir(path)
+	local ent = system.ReadDir(dir)
+	
+	mod.files = {}
+	
+	while ent do
+		local fi = {}
+		local line
+		fi.name  = system.EntName( ent )
+		fi.size  = system.Filesize ( fi.name )
+		fi.isdir = system.IsDir( fi.name )
+		
+		if fi.isdir then
+			line = "<" .. fi.name .. ">"
+		else
+			line = fi.name
+		end
+				
+		table.insert ( mod.files , fi )
+		table.insert ( list , line )
+		
+		ent = system.ReadDir( dir )
+	end
+	system.CloseDir( dir )
+	return list
+end
+
+return mod

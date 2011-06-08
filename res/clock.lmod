@@ -1,0 +1,294 @@
+-- clock.lmod
+
+local mod = do_module("mod_base.lmod")
+
+-- routines
+
+function mod.init()
+
+	mod.y = 16
+	mod.h = mod.sh - 16
+
+	mod.win  = gui.createWindow( mod.x , mod.y , mod.w , mod.h )
+	mod.box  = gui.createBox( 0 , 0 , mod.w , mod.h )
+	mod.view = gui.createView ( mod.w/2 , 0 , mod.w/2 , mod.h )
+
+	mod.color  = graph.Color ( 0x00 , 0x00 , 0x00 )
+	mod.red    = graph.Color ( 0xff , 0x00 , 0x00 ) 
+	mod.blue   = graph.Color ( 0x00 , 0x00 , 0xff ) 
+	mod.today  = graph.Color ( 0xff , 0xff , 0x00 )
+
+	mod.makeCalendar()
+
+	gui.appendChild ( mod.box , mod.cal  )
+	gui.appendChild ( mod.box , mod.view )
+	gui.append ( mod.win , mod.box )
+	
+	gui.setDrawer( mod.view , mod.drawClock )
+	
+	mod.tick = system.GetTick()	
+end
+
+function mod.checkLeap( year )
+	if year % 4 == 0 and year % 100 ~= 0 or year % 400 == 0 then
+		return true
+	end
+	
+	return false
+end
+
+function mod.makeCalendar()
+
+	local w = mod.w / 2
+	local h = mod.h
+	
+	local x = w * 0.1
+	local y = h * 0.1
+	
+	local wday    = { "Sun","Mon","Tue","Wed","Thu","Fri","Sat" }
+	local mon =     { "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec" }
+	local day_mon = {   31 ,  28 ,  31 ,  30 ,  31 ,  30 ,  31 ,  31 ,  30 , 31  , 30  ,  31  }
+	
+	local ost = os.date("*t")
+	
+	local today = ost.day
+	
+	if mod.checkLeap( ost.year ) then
+		day_mon[2] = 29
+	end 
+	
+	ost.day = 1
+	
+	local t = os.date("*t",os.time(ost))
+	
+	
+	local fmt = string.format ( "%4d / %s(%2d)" , t.year , mon[t.month] , t.month )
+	
+	mod.cal  = gui.createBox( 0 , 0 , mod.w/2 , mod.h )
+
+	mod.yearObj  = gui.createButton ( x , y , w - (x * 2) , 20 , fmt )
+
+	gui.setDrawBox ( mod.yearObj , false )	
+	gui.appendChild ( mod.cal , mod.yearObj )
+
+	local i,j
+	
+	local xs,ys
+	
+	xs = w / 9
+	ys = 25
+	
+	local start = t.wday
+	local day_count = day_mon[ t.month ]
+	local day = 1
+	
+	y = h * 0.25
+	
+	x = xs
+	
+	for i = 1,7
+	do
+		local obj = gui.createButton ( x , y , 16 , 20 , wday[ i ] )
+		
+		if i == 1 then
+		
+			gui.setTextColor ( obj , mod.red )
+		
+		elseif i == 7 then
+		
+			gui.setTextColor ( obj , mod.blue )					
+		end
+		
+		gui.setFont( obj , "small" )
+		gui.setDrawBox ( obj , false )
+		gui.appendChild ( mod.cal , obj )
+		
+		x = x + xs
+	end
+
+
+	y = y + ys	
+	
+	for j = 1,5
+	do
+		x = xs
+	
+		for i = 1,7
+		do			
+			if start == 1 then
+				local obj = gui.createButton ( x , y , 16 , 20 , string.format("%2d",day ) )
+				
+				if day == today then
+					gui.setTextColor ( obj , mod.today )
+				elseif i == 1 then
+					gui.setTextColor ( obj , mod.red )
+				elseif i == 7 then
+					gui.setTextColor ( obj , mod.blue )					
+				end
+				gui.setDrawBox ( obj , true )
+				gui.appendChild ( mod.cal , obj )
+				day = day + 1
+			else
+				start = start - 1
+			end
+			
+			if day > day_count then
+				break
+			end
+			
+			x = x + xs
+		end
+		
+		y = y + ys
+	end
+
+end
+
+function mod.drawClock ( win , bx , by , obj )
+	if obj.hide then
+		return
+	end
+	
+	local x = bx + obj.size.x
+	local y = by + obj.size.y
+	local w = obj.size.w
+	local h = obj.size.h
+	local hw = w/2
+	
+	local radius   = hw * 0.8
+	local radius_l = hw * 0.75
+	local radius_m = hw * 0.7
+	local radius_s = hw * 0.5
+	local radius2 = 5
+	local radius3 = 3
+	
+	
+	local cx = x + (w/2)
+	local cy = y + (h/2)
+	
+	
+	local t    = os.date("*t")	
+	local timestr = string.format("%02d:%02d:%02d" 
+		,  t.hour , t.min , t.sec )
+		 
+	local text = graph.Text ( obj.font , timestr , mod.color )
+	
+	local tw = graph.SurfWidth ( text )
+	graph.Blit( text , x + hw - (tw/2) , y + (h * 0.1) )	
+	graph.FreeSurf ( text )
+	
+
+	local n = 60	
+	local angle = 0
+	
+	
+	graph.Lock()
+	
+	graph.Box ( x , y , x+w-1 , y+h-1 , mod.color )
+	
+	
+	for i = 1,n do
+		local radx = (2 * 3.1415 / 360) * angle
+		local zx = cx + ( math.cos ( radx ) * radius )
+		local zy = cy + ( math.sin ( radx ) * radius )
+		
+		if i % 5 == 1 then
+			graph.CircleFill ( zx , zy , radius3 , mod.color )
+		else
+			graph.Pixel ( zx , zy , mod.color )
+		end
+		
+		angle = angle + ( 360 / n )
+	end
+	
+	-- 30deg = 1h in hour hand
+	local h_angle = ((t.hour % 12) * 30) + (t.min / 2)
+	
+	-- 6deg = 1m in min hand
+	local m_angle = (t.min * 6) + (t.sec / 10)
+	
+	-- 6deg = 1s in sec hand
+	local s_angle = t.sec * 6
+	
+	mod.drawHand ( cx , cy , 0 - 90 + h_angle , radius_s )
+	mod.drawHand ( cx , cy , 0 - 90 + m_angle , radius_m )
+	mod.drawHandLine ( cx , cy , 0 - 90 + s_angle , radius_l )
+
+	graph.CircleFill ( cx , cy , radius2 , mod.color )
+
+
+	graph.Unlock()
+	
+end
+
+function mod.drawHand ( cx , cy , angle , len )
+
+	local px,py
+
+	px = {}
+	py = {}
+	
+	local s_len = len * 0.2
+	local s_angle = 15
+	
+	table.insert ( px , cx )
+	table.insert ( py , cy )
+
+	local radx = (2 * 3.1415 / 360) * ( angle - s_angle )
+	
+	local zx = cx + ( math.cos ( radx ) * s_len )
+	local zy = cy + ( math.sin ( radx ) * s_len )
+	
+	table.insert ( px , zx )
+	table.insert ( py , zy )
+	
+	radx = (2 * 3.1415 / 360) * angle
+
+	zx = cx + ( math.cos ( radx ) * len )
+	zy = cy + ( math.sin ( radx ) * len )
+	
+	table.insert ( px , zx )
+	table.insert ( py , zy )
+	
+	
+	radx = (2 * 3.1415 / 360) * ( angle + s_angle )
+	
+	zx = cx + ( math.cos ( radx ) * s_len )
+	zy = cy + ( math.sin ( radx ) * s_len )	
+	
+	table.insert ( px , zx )
+	table.insert ( py , zy )
+
+
+	graph.Poly( px , py , mod.color )
+
+end
+
+
+function mod.drawHandLine ( cx , cy , angle , len )
+
+	local radx = (2 * 3.1415 / 360) * angle
+
+	local zx = cx + ( math.cos ( radx ) * len )
+	local zy = cy + ( math.sin ( radx ) * len )
+	
+	graph.Line( cx , cy , zx , zy , mod.color )
+	
+end
+
+function mod.interval()
+	local tick = system.GetTick()
+	if tick - mod.tick >= 500 then
+		gui.setUpdate ( mod.win )
+		mod.tick = tick
+	end
+end
+
+function mod.checkKey()
+	if key.A() or key.B() or key.Select()
+	then
+		mod.doFinish()
+	end
+end
+
+return mod

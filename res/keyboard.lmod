@@ -1,0 +1,349 @@
+-- keyboard.lmod
+
+--[[
+   Keyboard.lmod  programmed by BouKiCHi 2011
+   This code is provided with MIT license.
+   Please see included document for detail. 
+]]
+
+local mod = do_module("mod_base.lmod")
+
+local key_table_large
+	= { { "Q","W","E","R","T","Y","U","I","O","P","@","\\" },
+			    { "A","S","D","F","G","H","J","K","L",";",":","["  },
+			    { "Z","X","C","V","B","N","M",",",".","/","_","]"  } }
+local key_table_small
+			= { { "q","w","e","r","t","y","u","i","o","p","`","{" },
+			    { "a","s","d","f","g","h","j","k","l","+","*","}"  },
+			    { "z","x","c","v","b","n","m","<",">","?","_","|"  } }
+local key_table_num
+			= { { "1","2","3","4","5","6","7","8","9","0","","" },
+			    { "!","\"","#","$","%","&","'","(",")","-","",""  },
+			    { "+","-","*","/","=","","","","","","",""  } }
+
+
+mod.tableList = { key_table_large , key_table_small , key_table_num }
+
+mod.keyMap = {}
+mod.keyMap.w = { 11 ,  11 , 11  , 6  }
+mod.keyMap.y = { 0  ,  26 , 52  , 80 }
+mod.keyMap.bx = { 0  ,  53 , 187 , 214 , 241 , 268 , 295 }
+mod.keyMap.bw = { 51 , 132 , 25  , 25  , 25  , 25  , 25  }
+
+
+-- カーソル描画
+function mod.drawCursor ( select_flag )
+
+	local dx = 0
+	local dy = mod.sh - 105
+	
+	local sx
+	local sw
+
+	if mod.kp.y < 3 then
+		sx = (mod.kp.x * 26.9)
+		sw = 25
+	else
+		sx = mod.keyMap.bx [ mod.kp.x + 1 ]
+		sw = mod.keyMap.bw [ mod.kp.x + 1 ]
+	end
+	
+	sy = mod.keyMap.y [ mod.kp.y + 1 ]
+	sh = 25
+	
+	dx = dx + sx
+	dy = dy + sy
+	
+	
+	-- マスク？普通のキーボード？
+	local base = mod.kg.main
+	
+	if select_flag then
+		base = mod.kg.select
+	end
+	
+	-- 表示位置の調整
+	if mod.kp.y < 3 then
+		graph.BlitRect( base , 0 , 0 , sw , sh , dx , dy )
+	else
+		if mod.kp.x < 2 then
+			graph.BlitRect( base , sx , sy , sw , sh , dx , dy )
+		else
+			graph.BlitRect( base , 0 , 0 , sw , sh , dx , dy )
+		end
+	end
+	
+	graph.BlitRect( mod.keyTop , sx , sy , sw , sh , dx , dy )
+	graph.Update()
+
+end
+
+-- キーボード描画
+function mod.drawKeyboard()
+	graph.Blit ( mod.kg.main , 0 , mod.sh - 105 )
+	graph.Blit ( mod.keyTop  , 0 , mod.sh - 105 )
+	graph.Update()
+end
+
+-- 文字列描画
+function mod.drawString()
+	graph.Blit ( mod.baseSurf , 0 , mod.str.y )
+
+	local text  = graph.Text( mod.ttf , mod.string ,mod.color.front )
+	graph.Blit ( text  , 0 , mod.str.y )
+	local tw    = graph.SurfWidth ( text ) 
+	graph.FreeSurf ( text )
+
+	graph.BoxFill ( tw , mod.sh - 108, mod.cw , 3 , mod.color.cursor )
+	graph.Update()
+end
+
+-- キー種類の変更
+function mod.setKeyMode()
+	mod.keyTop = mod.topList[ mod.keyMode + 1 ]
+	mod.keyTable = mod.tableList[ mod.keyMode + 1 ]
+	
+	mod.drawKeyboard()
+	mod.drawCursor(true)
+end
+
+-- キー種類+1
+function mod.incKeyMode()
+	if mod.keyMode < 2 then
+		mod.keyMode = mod.keyMode + 1
+	else
+		mod.keyMode = 0
+	end
+	
+	mod.setKeyMode()
+end
+
+
+-- キー種類-1
+function mod.decKeyMode()
+	if mod.keyMode > 0 then
+		mod.keyMode = mod.keyMode - 1
+	else
+		mod.keyMode = 2
+	end
+	
+	mod.setKeyMode()
+end
+
+-- 初期化
+function mod.init()
+
+	local pdiv = system.PathDiv()
+
+	local execdir = system.GetExecDir()
+	local pdiv = system.PathDiv()
+	
+	local resdir = execdir .. pdiv .. "res"
+	local imgdir = resdir  .. pdiv .. "img"
+	local kbddir = imgdir  .. pdiv .. "key"
+	
+	mod.w = mod.sw
+	mod.h = mod.sh
+	mod.cw = 8
+
+	mod.color = {}
+	mod.color.back   = graph.Color( 0x55 , 0x55 , 0x55 )
+	mod.color.front  = graph.Color( 0xff , 0xff , 0xff )
+	mod.color.cursor = graph.Color( 0xff , 0xff , 0x00 )
+		
+	kg = {}
+	kg.main    = graph.ImgLoad( kbddir .. pdiv .. "main.png" )
+	kg.select  = graph.ImgLoad( kbddir .. pdiv .. "select.png" )
+	kg.large   = graph.ImgLoad( kbddir .. pdiv .. "large.png" )
+	kg.small   = graph.ImgLoad( kbddir .. pdiv .. "small.png" )
+	kg.number  = graph.ImgLoad( kbddir .. pdiv .. "number.png" )
+	
+	mod.kg = kg
+	
+	mod.topList = { kg.large , kg.small , kg.number }
+	
+	mod.h = 124
+	mod.y   = mod.sh - mod.h
+	
+	graph.BoxFill( 0 , mod.y , mod.w , mod.h , mod.color.back )
+	graph.BoxFill( 0 , mod.y , mod.w , 1 , mod.color.front )
+
+	mod.keyMode = 0
+
+	mod.str = {}
+
+	mod.kp = {}
+	mod.kp.x = 0
+	mod.kp.y = 0
+	mod.kp.pos = 0
+	
+	mod.setKeyMode()
+	
+	mod.ttf = gui.getFont("normal")
+	
+	mod.baseSurf = graph.CreateSurf ( mod.w , 18 )
+	
+	mod.str.y = mod.y + 1
+	mod.str.h = 18
+	
+	graph.CopySurf( graph.MainSurf() , mod.baseSurf , 0 , mod.str.y , mod.w , mod.str.h , 0 , 0 )	
+	
+	mod.setString("")
+		
+	mod.surfList = { 
+			kg.main , 
+			kg.select , 
+			kg.large, 
+			kg.small,
+			kg.number,
+			mod.baseSurf }
+
+end
+
+function mod.setString( text )
+	local str = text
+	
+	if text == nil
+	then
+		str = ""
+	end
+
+	mod.string = str
+	mod.kp.len = string.len ( mod.string )
+	mod.kp.pos = mod.kp.len
+	mod.drawString()
+end
+
+function mod.cursorInc()
+	if mod.kp.pos < string.len( mod.string ) 
+	then
+		mod.kp.pos = mod.kp.pos + 1
+	end
+end
+
+function mod.cursorDec()
+	if mod.kp.pos > 0 then
+		mod.kp.pos = mod.kp.pos - 1
+	end
+end
+
+function mod.insertChr( str , pos , chr )
+	return string.sub( str , 0 , pos ) .. chr .. string.sub( str , pos + 1 )	
+end
+
+function mod.removeChr( str , pos )
+	if pos > 0 then
+		return string.sub( str , 0 , pos - 1 ) .. string.sub( str , pos + 1 )
+	else
+		return string.sub( str , pos + 1 )
+	end
+end
+
+function mod.hitBackspace()
+	mod.string = mod.removeChr ( mod.string , mod.kp.pos )
+	mod.cursorDec()
+end
+
+-- キー入力
+function mod.hitKey()
+	if mod.kp.y < 3 then
+		-- 通常キー
+		
+		mod.string = mod.insertChr ( mod.string , mod.kp.pos , mod.keyTable[ mod.kp.y + 1 ][ mod.kp.x + 1 ] )
+		mod.cursorInc()
+	else
+		-- 特殊キー
+		if mod.kp.x == 0 then
+			mod.incKeyMode()
+		elseif mod.kp.x == 1 then
+			mod.string = mod.insertChr ( mod.string , mod.kp.pos , " " )
+			mod.cursorInc()
+		elseif mod.kp.x == 2 then
+			mod.hitBackspace()
+		elseif mod.kp.x == 3 then
+			mod.cursorDec()
+		elseif mod.kp.x == 4 then
+			mod.cursorInc()
+		end		
+	end
+end
+
+-- キー入力
+function mod.checkKey()
+	if key.Left() then
+		mod.drawCursor(false)
+		if mod.kp.x > 0 then
+			mod.kp.x = mod.kp.x - 1
+		end
+		mod.drawCursor(true)
+	end
+
+		if key.Right() then
+			mod.drawCursor(false)
+			if mod.kp.x < mod.keyMap.w[ mod.kp.y + 1 ] then
+				mod.kp.x = mod.kp.x + 1
+			end
+			mod.drawCursor(true)
+		end
+
+		if key.Up() then
+			mod.drawCursor(false)
+			if mod.kp.y > 0 then
+				mod.kp.y = mod.kp.y - 1
+			end
+			mod.drawCursor(true)
+		end
+
+		if key.Down() then
+			mod.drawCursor(false)
+			if mod.kp.y < 3 then
+				mod.kp.y = mod.kp.y + 1
+				-- 最下段はスペースキーにする
+				if mod.kp.y == 3 then
+					mod.kp.x = 1
+				end
+			end
+			
+			mod.drawCursor(true)
+		end
+		
+		if key.A() then
+			mod.hitKey()
+			mod.drawString()
+		end
+
+		if key.B() then
+			mod.hitBackspace()
+			mod.drawString()
+		end
+		
+		if key.Start() then
+			mod.setResult ( mod.string )
+			mod.doFinish()
+		end
+		
+		if key.Select() then
+			mod.setResult ( nil )
+			mod.doFinish()
+		end
+		
+		if key.L() then
+			mod.decKeyMode()
+		end
+		
+		if key.R() then
+			mod.incKeyMode()
+		end
+		
+end
+
+-- 開放
+function mod.free()
+	
+	for k,v in pairs( mod.surfList ) do
+		graph.FreeSurf( v )
+	end
+end
+
+return mod
+

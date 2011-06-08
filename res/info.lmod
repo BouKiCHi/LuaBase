@@ -1,0 +1,65 @@
+-- info.lua
+
+local info = {}
+
+function info.draw()
+
+	local dt = os.date("*t")
+	
+	if dt.hour == info.pastHour and dt.min == info.pastMin 
+	then
+		return
+	end
+	
+	info.pastHour = dt.hour
+	info.pastMin = dt.min
+	info.batt = system.ReadBatt() / 1000
+	
+	local time_str = string.format("%02d:%02d %.2fV",dt.hour,dt.min ,info.batt ) 
+
+	local text = graph.Text ( info.ttf , time_str , info.fgc )
+	local sw = graph.SurfWidth ( text )
+
+	local luastr = graph.Text ( info.ttf , "  LuaBase  " , info.fgc )
+	local luastr2 = graph.Text ( info.ttf , "  LuaBase  " , info.fgc2 )
+
+	graph.BoxFill( 0 , 0 , info.w , 16 , info.bgc )
+	graph.Blit( text , info.w - sw , 0 )
+	graph.FreeSurf( text ) 
+	
+	graph.Blit( luastr , 1 , 1 )
+	graph.FreeSurf( luastr ) 
+	graph.Blit( luastr2 , 0 , 0 )
+	graph.FreeSurf( luastr2 ) 
+
+
+	graph.Update()
+	
+end
+
+function info.init()
+	info.ttf  = font.load( 12 )
+	info.bgc  = graph.Color( 0xb0,0xb0,0xb0 )
+	info.fgc  = graph.Color( 0x00,0x00,0x00 )
+	info.fgc2 = graph.Color( 0x20,0x20,0x20 )
+	
+	info.pastHour = -1
+	info.pastMin  = -1
+	
+	info.w = graph.Width()
+	info.h = graph.Height()
+
+	info.draw()
+end
+
+function info.update()
+	info.draw()
+end
+
+function info.free()
+	font.close( info.ttf )
+end
+
+layer.register({ init = info.init , update = info.update , free = info.free })
+
+

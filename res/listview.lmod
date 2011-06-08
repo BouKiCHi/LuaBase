@@ -1,0 +1,218 @@
+-- listview.lua
+
+local mod = do_module("mod_base.lmod")
+
+function mod.init()
+	mod.w = mod.sw
+	mod.h = mod.sh
+
+	mod.win = gui.createWindow( 0 , 16 , mod.w , mod.h - 16 )
+	
+	mod.textbody = { 
+		"Alfa",
+		"Bravo", 
+		"Charlie",
+		"Delta",
+		"Echo",
+		"Foxtrot",
+		"Golf",
+		"Hotel",
+		"India",
+		"Juliet",
+		"Kilo",
+		"Lima",
+		"Mike",
+		"November",
+		"Oscar",
+		"Papa",
+		"Quebec",
+		"Romeo",
+		"Sierra",
+		"Tango",
+		"Uniform",
+		"Victor",
+		"Whiskey",
+		"Xray",
+		"Yankee",
+		"Zulu" }
+
+	mod.textlines = #mod.textbody
+
+	mod.cursor = 0	
+	mod.buildGUI()
+	
+	mod.curmax = mod.lines
+	mod.curofs = 0
+	mod.updateCursor()	
+end
+
+function mod.setTextBody ( body )
+	mod.textbody = body
+	mod.textlines = #body
+
+	mod.pos = 0
+	mod.cursor = 0
+	
+	gui.setScrollBar ( mod.bar , mod.textlines , 0 , mod.lines )
+	gui.setScrollPos ( mod.bar , mod.pos )
+
+	
+	mod.updateText ( mod.pos )
+
+	gui.setUpdate ( mod.win )
+end
+
+function mod.setHeader ( text )
+	if text ~= "" then
+		mod.hasHeader = true
+		mod.header = text
+		mod.curofs = 1
+		mod.curmax = mod.lines - 1
+		
+		gui.setTextColor ( mod.line_objs[1] , graph.Color( 0xff,0xff,0xff ) )
+	
+		local back_color = {
+			graph.Color( 0xff,0xff,0xff ),
+			graph.Color( 0x80,0x80,0xf0 ),
+			graph.Color( 0x60,0x60,0x80 )
+		}
+		gui.setColor ( mod.headObj , "back" , back_color )		
+
+		gui.setHide ( mod.headObj , false )
+
+	else
+
+		mod.hasHeader = false
+		mod.curofs = 0
+		mod.curmax = mod.lines
+		gui.removeColor ( mod.line_objs, "text" )
+		gui.removeColor ( mod.line_objs, "back" )
+
+		gui.setHide ( mod.headObj , true )
+
+		
+	end
+	mod.updateCursor()
+	mod.updateText ( mod.pos )
+	gui.setUpdate ( mod.win )
+
+end
+
+function mod.updateCursor ()
+	gui.moveObject ( mod.cursorObj , 0 , (mod.cursor + mod.curofs) * mod.ch  )	
+	gui.setUpdate( mod.win )
+end
+
+function mod.updateText( pos )
+	local i = 1
+	local ofs = 0
+	local h = mod.lines
+	
+	if mod.hasHeader then
+		ofs = 1
+		h = h - 1
+		gui.setText( mod.line_objs [ 1 ] , mod.header )
+	end
+
+	for i = 1,h
+	do
+		if i + pos <= mod.textlines
+		then
+			gui.setText ( mod.line_objs[ i + ofs ] , mod.textbody [ i + pos ] )
+		else
+			gui.setText ( mod.line_objs[ i + ofs ] , "" )
+		end
+	end
+	
+end
+
+
+function mod.buildGUI()
+
+	mod.ch = 16 
+
+	local box  = gui.createBox (  0 , 0 , mod.win.w , mod.win.h )
+	local view = gui.createView ( 0 , 0 , mod.win.w , mod.win.h )
+	local bar  = gui.createScrollBar ( mod.win.w - 10 , 0 , 10 , mod.win.h )
+
+	local headObj   = gui.createBox ( 0 , 0 , mod.win.w - 10 , mod.ch  )
+	local cursorObj = gui.createBox ( 0 , 0 , mod.win.w - 10 , mod.ch  )
+	
+	mod.line_objs = {}
+	mod.lines = (mod.win.h / mod.ch )
+	
+	for i = 0 , mod.lines -1
+	do
+		local obj = gui.createText ( 0 , i * mod.ch  , "" )	
+		gui.appendChild( view , obj )
+		table.insert ( mod.line_objs , obj )		
+	end
+
+	mod.pos = 0
+
+	mod.bar = bar
+	mod.headObj   = headObj
+	mod.cursorObj = cursorObj
+	
+	gui.setHide ( mod.headObj , true )
+
+	mod.updateText ( mod.pos )
+
+	gui.setScrollBar ( mod.bar , mod.textlines , 0 , mod.lines )
+	gui.setScrollPos ( mod.bar , 0 )
+
+	gui.append ( mod.win , box )
+	gui.append ( mod.win , headObj )
+	gui.append ( mod.win , cursorObj )
+	gui.append ( mod.win , view )
+	gui.append ( mod.win , bar )
+	
+	gui.setFocus ( mod.win , cursorObj )
+	gui.viewFocus ( mod.win , true )
+end
+
+function mod.checkKey()
+	gui.setUpdate ( mod.win )
+	if key.Up()
+	then
+	
+		if mod.cursor > 0 then
+			mod.cursor = mod.cursor - 1
+			mod.updateCursor()
+		else
+			if mod.pos > 0 then
+				mod.pos = mod.pos - 1
+				mod.updateText ( mod.pos )
+				gui.setScrollPos ( mod.bar , mod.pos )
+			end
+		end
+	end
+
+	if key.Down()
+	then
+		if mod.cursor + 1 < mod.curmax and mod.cursor + 1 < mod.textlines then
+			mod.cursor = mod.cursor + 1
+			mod.updateCursor()
+		else
+			if mod.pos + mod.lines < mod.textlines then
+				mod.pos = mod.pos + 1
+				mod.updateText ( mod.pos )
+				gui.setScrollPos ( mod.bar , mod.pos )
+			end
+		end
+	end
+
+	if key.Select() or key.B()
+	then
+		mod.setResult( -1 )
+		mod.doFinish()
+	end
+
+	if key.A()
+	then
+		mod.setResult( mod.cursor + mod.pos )
+		mod.doFinish()
+	end
+end
+
+return mod

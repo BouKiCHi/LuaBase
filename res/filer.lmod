@@ -1,0 +1,112 @@
+-- main.lua
+
+local mod = do_module("mod_base.lmod")
+local listview = do_module("listview.lmod")
+
+-- routines
+
+function mod.init()
+
+	mod.w = mod.sw
+	mod.h = mod.sh
+	
+	mod.win = gui.createWindow( 0 , 16 , mod.w , mod.h - 16 )
+	local box = gui.createBox ( 0 ,  0 , mod.w , mod.h )
+
+	gui.append ( mod.win , box )
+
+	mod.path = mod.getConfigValue ( "path" ) or system.GetCwd()
+	
+	mod.viewList()
+end
+
+function mod.setPath( path )
+	mod.path = path
+
+	mod.setConfigValue ( "path" , path )
+end
+
+function mod.changePath ( path )
+	local current = system.GetCwd()
+
+	system.ChDir( mod.path )
+	system.ChDir( path )
+
+	mod.setPath( system.GetCwd() )
+	
+	system.ChDir( current )
+
+end
+
+function mod.viewList()
+	
+	list = mod.readDir( mod.path )
+	
+	mod.call = listview
+	listview.start()
+	listview.setTextBody( list )
+	
+	
+	listview.setHeader( "<<" .. mod.path .. ">>" ) 
+end
+
+function mod.readDir( path )
+	local list = {}
+
+	local current = system.GetCwd()
+	system.ChDir ( path )
+
+	local dir = system.OpenDir(".")
+	local ent = system.ReadDir(dir)
+	
+	mod.files = {}
+	
+	while ent do
+		local fi = {}
+		local line
+		fi.name  = system.EntName( ent )
+		fi.size  = system.Filesize ( fi.name )
+		fi.isdir = system.IsDir( fi.name )
+		
+		if fi.isdir then
+			line = "<" .. fi.name .. ">"
+		else
+			line = fi.name
+		end
+				
+		table.insert ( mod.files , fi )
+		table.insert ( list , line )
+		
+		ent = system.ReadDir( dir )
+	end
+	system.CloseDir( dir )
+	
+	
+	system.ChDir ( current )
+	return list
+end
+
+function mod.checkNotify()
+	if mod.call and mod.call.isDone()
+	then
+		local result = mod.call.getResult()
+		if result < 0 then
+			mod.doFinish()
+		else
+			local fi = mod.files[ result + 1 ]
+			if fi.isdir then
+				mod.changePath ( fi.name )
+			else
+				local dir = system.GetCwd ()
+				local path =  dir .. system.PathDiv() .. fi.name
+				mod.setResult ( path )
+				mod.doFinish()
+			end
+			
+			mod.call = nil
+			mod.viewList()
+		end
+	end
+end
+
+return mod
