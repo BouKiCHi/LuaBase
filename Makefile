@@ -56,14 +56,7 @@ LIBS += -lSDL_ttf
 LIBS += -lSDL_image
 LIBS += -lSDL_mixer
 
-# CFLAGS += `lua-config --include`
-# LIBS += `lua-config --libs`
-# CFLAGS += -I/usr/include/lua5.1 
-# LIBS   += -llua5.1
-
-LIBS += -llua
-
-
+-include config.mk
 
 # LIBS += `taglib-config --libs`
 # LIBS +=  -ltag_c -lsqlite3
