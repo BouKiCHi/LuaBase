@@ -73,15 +73,12 @@ void system_set_dir(const char *exec,const char *script)
 	
 }
 
-
-/***************************************
- functions
- 
- system.time()
- system.quit()
-
- ***************************************/
-
+// @function system.GetTick
+// @format   tick = system.GetTick()
+// @out      tick : time in ms
+// @describe Get current ticks in ms
+// @version  1.0
+// @end
 
 static int system_GetTick(lua_State *L)
 {
@@ -89,18 +86,39 @@ static int system_GetTick(lua_State *L)
 	return 1;	
 }
 
+
+// @function system.Quit
+// @format   system.Quit()
+// @describe Quit LuaBase
+// @version  1.0
+// @end
+
 static int system_Quit(lua_State *L)
 {
 	g_quit = 1;
 	return 0;
 }
 
+// @function system.Version
+// @format   version = system.Version()
+// @describe get current version of LuaBase
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_Version(lua_State *L)
 {
 	lua_pushnumber( L , SYS_VERSION );	
 	return 1;	
 }
 
+// @function system.BackNotify
+// @format   flag = system.BackNotify()
+// @describe Notification of back from sub script
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_BackNotify(lua_State *L)
 {
 	if (g_back)
@@ -111,6 +129,13 @@ static int system_BackNotify(lua_State *L)
 	return 1;	
 }
 
+// @function system.ResultNotify
+// @format   flag = system.ResultNotify()
+// @describe Notify if sub script sets any result
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ResultNotify(lua_State *L)
 {
 	if (g_result)
@@ -121,6 +146,13 @@ static int system_ResultNotify(lua_State *L)
 	return 1;
 }
 
+// @function system.ArgumentNotify
+// @format   flag = system.ArgumentNotify()
+// @describe Notify if caller sets arguments
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ArgumentNotify(lua_State *L)
 {
 	if (g_argument)
@@ -132,6 +164,13 @@ static int system_ArgumentNotify(lua_State *L)
 }
 
 
+// @function system.GetResultString
+// @format   string = system.GetResultString()
+// @describe Get result string
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_GetResultString(lua_State *L)
 {
 	lua_pushstring( L , g_result_str );	
@@ -139,6 +178,13 @@ static int system_GetResultString(lua_State *L)
 }
 
 
+// @function system.SetResultString
+// @format   system.SetResultString( string )
+// @describe Set result string for caller
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_SetResultString(lua_State *L)
 {
 	g_result = 1;
@@ -147,6 +193,13 @@ static int system_SetResultString(lua_State *L)
 }
 
 
+// @function system.GetArgumentString
+// @format   argument = system.GetArgumentString()
+// @describe Get argument string
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_GetArgumentString(lua_State *L)
 {
 	lua_pushstring( L , g_argument_str );	
@@ -154,6 +207,13 @@ static int system_GetArgumentString(lua_State *L)
 }
 
 
+// @function system.SetArgumentString
+// @format   system.SetArgumentString( argument )
+// @describe Set argument string
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_SetArgumentString(lua_State *L)
 {
 	g_argument = 1;
@@ -162,7 +222,13 @@ static int system_SetArgumentString(lua_State *L)
 }
 
 
-
+// @function system.ClearNotify
+// @format   system.ClearNotify()
+// @describe Clear Notification flags ( argument , result , back )
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ClearNotify(lua_State *L)
 {
 	g_argument = 0;
@@ -171,6 +237,13 @@ static int system_ClearNotify(lua_State *L)
 	return 0;
 }
 
+// @function system.Delay
+// @format   system.Delay( time )
+// @describe Delay
+// @version  1.0
+// @in       time : time in milisecond
+// @out      
+// @end
 static int system_Delay(lua_State *L)
 {
 	SDL_Delay(lua_tonumber(L,1));
@@ -185,6 +258,13 @@ static FILE *lock_fp = NULL;
 
 #ifdef __A320__
 
+// @function system.ReadLCD
+// @format   bright = system.ReadLCD()
+// @describe Get backlight
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ReadLCD(lua_State *L)
 {
 	int lcd_bright;
@@ -202,6 +282,13 @@ static int system_ReadLCD(lua_State *L)
 	return 1;
 }
 
+// @function system.WriteLCD
+// @format   system.WriteLCD( bright )
+// @describe Set backlight
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_WriteLCD(lua_State *L)
 {
 	if (!lcd_fp)
@@ -218,6 +305,13 @@ static int system_WriteLCD(lua_State *L)
 	return 0;
 }
 
+// @function system.ReadBatt
+// @format   batt = system.ReadBatt()
+// @describe Get battery
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ReadBatt(lua_State *L)
 {
 	int val = 0;
@@ -236,6 +330,13 @@ static int system_ReadBatt(lua_State *L)
 	
 }
 
+// @function system.ReadLock
+// @format   lock = system.ReadLock()
+// @describe Read lock switch 
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ReadLock(lua_State *L)
 {
 	int val = 0;
@@ -289,9 +390,16 @@ static int system_ReadLock(lua_State *L)
 
 
 /***************************************
- ディレクトリ関連
+ Directory stuff
  ***************************************/
 
+// @function system.OpenDir
+// @format   dir = system.OpenDir( path )
+// @describe Open Directory
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_OpenDir(lua_State *L)
 {
 	DIR *dir = NULL;
@@ -307,6 +415,13 @@ static int system_OpenDir(lua_State *L)
 	return 1;
 }
 
+// @function system.CloseDir
+// @format   system.CloseDir( dir )
+// @describe Close Directory
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_CloseDir(lua_State *L)
 {
 	if (!lua_isnil( L , 1 ))
@@ -315,6 +430,13 @@ static int system_CloseDir(lua_State *L)
 	return 0;
 }
 
+// @function system.ReadDir
+// @format   entry = system.ReadDir( dir )
+// @describe Read directory entry
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ReadDir(lua_State *L)
 {
 	struct dirent *p_ent = NULL;
@@ -330,6 +452,13 @@ static int system_ReadDir(lua_State *L)
 	return 1;
 }
 
+// @function system.EntName
+// @format   name = system.EntName( entry )
+// @describe Get name from entry
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_EntName(lua_State *L)
 {
 	lua_pushstring( L , 
@@ -338,6 +467,13 @@ static int system_EntName(lua_State *L)
 	return 1;
 }
 
+// @function system.IsDir
+// @format   flag = system.IsDir( path )
+// @describe Check if the path is directory
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_IsDir(lua_State *L)
 {
 	struct stat s_stat;
@@ -348,7 +484,13 @@ static int system_IsDir(lua_State *L)
 	return 1;
 }
 
-
+// @function system.IsExist
+// @format   flag = system.IsExist( path )
+// @describe Check if the path exists
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_IsExist(lua_State *L)
 {
 	struct stat s_stat;
@@ -363,6 +505,13 @@ static int system_IsExist(lua_State *L)
 
 
 
+// @function system.Filesize
+// @format   size = system.Filesize( path )
+// @describe Get filesize
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_Filesize(lua_State *L)
 {
 	struct stat s_stat;
@@ -373,6 +522,13 @@ static int system_Filesize(lua_State *L)
 	return 1;
 }
 
+// @function system.GetCwd
+// @format   path = system.GetCwd()
+// @describe Get current working directory
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_GetCwd(lua_State *L)
 {
 	char path[SYS_MAXPATH];
@@ -383,30 +539,65 @@ static int system_GetCwd(lua_State *L)
 	return 1;
 }
 
+// @function system.ChDir
+// @format   system.ChDir( path )
+// @describe Set current working directry
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_ChDir(lua_State *L)
 {
 	chdir( lua_tostring ( L , 1 ) );
 	return 0;
 }
 
+// @function system.MkDir
+// @format   system.MkDir( directory )
+// @describe Make directry
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_MkDir(lua_State *L)
 {
 	mkdir( lua_tostring ( L , 1 ) , S_IRWXU | S_IRWXG | S_IRWXO);
 	return 0;
 }
 
+// @function system.GetExecDir
+// @format   path = system.GetExecDir()
+// @describe Get executable directory
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_GetExecDir(lua_State *L)
 {	
 	lua_pushstring( L , g_exec_dir );
 	return 1;
 }
 
+// @function system.GetScriptDir
+// @format   path = system.GetScriptDir()
+// @describe Get script directory
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_GetScriptDir(lua_State *L)
 {	
 	lua_pushstring( L , g_script_dir );
 	return 1;
 }
 
+// @function system.CallLua
+// @format   system.CallLua( file )
+// @describe Call Lua file
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_CallLua(lua_State *L)
 {	
 	strcpy( g_luafile , lua_tostring ( L , 1 ) );
@@ -415,6 +606,13 @@ static int system_CallLua(lua_State *L)
 }
 
 
+// @function system.Launch
+// @format   system.Launch( exec )
+// @describe Launch executable
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_Launch(lua_State *L)
 {	
 	strcpy( g_launch_cmd , lua_tostring ( L , 1 ) );
@@ -424,6 +622,13 @@ static int system_Launch(lua_State *L)
 	return 0;
 }
 
+// @function system.PathDiv
+// @format   div = system.PathDiv()
+// @describe Get path divider of current environment
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int system_PathDiv(lua_State *L)
 {
 	char div[2];
@@ -437,7 +642,7 @@ static int system_PathDiv(lua_State *L)
 
 
 /***************************************
- 登録
+ Register
  ***************************************/
 
 

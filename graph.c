@@ -26,11 +26,14 @@ void graph_set_surface(SDL_Surface *surface)
 #define USERSURF(x) ((SDL_Surface **)lua_touserdata(L,x) ? *(SDL_Surface **)lua_touserdata(L,x) : NULL )
 #define USERSURF_RAW(x) (SDL_Surface **)lua_touserdata(L,x)
 
-/*****************
-@section 制御系
-*****************/
 
-
+// @function gfx.Lock
+// @format   gfx.Lock()
+// @describe Lock main surface
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_Lock(lua_State *L)
 {
 	if (SDL_MUSTLOCK( mainsurf ))
@@ -38,6 +41,13 @@ static int gfx_Lock(lua_State *L)
 	return 0;
 }
 
+// @function gfx.Unlock
+// @format   gfx.Unlock()
+// @describe Unlock main surface
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_Unlock(lua_State *L)
 {
 	if (SDL_MUSTLOCK(mainsurf))
@@ -45,18 +55,39 @@ static int gfx_Unlock(lua_State *L)
 	return 0;
 }
 
+// @function gfx.Update
+// @format   gfx.Update()
+// @describe Update graphics
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_Update(lua_State *L)
 {
 	g_update = 1;
 	return 0;
 }
 
+// @function gfx.SetSurf
+// @format   gfx.SetSurf( surface )
+// @describe Set current graphic surface
+// @version  1.0
+// @in       surface : New surface
+// @out      
+// @end
 static int gfx_SetSurf(lua_State *L)
 {
 	c_surf = USERSURF(1);
 	return 0;
 }
 
+// @function gfx.MainSurf
+// @format   surface = gfx.MainSurf()
+// @describe return main surface
+// @version  1.0
+// @in       
+// @out      surface : Main surface
+// @end
 static int gfx_MainSurf(lua_State *L)
 {
 	SDL_Surface **surf = (SDL_Surface **)lua_newuserdata(L,sizeof(SDL_Surface **));		
@@ -67,6 +98,13 @@ static int gfx_MainSurf(lua_State *L)
 
 static int gfx_FreeSurf(lua_State *L);
 
+// @function gfx.CreateSurf
+// @format   surface = gfx.CreateSurf( w , h )
+// @describe Create new surface
+// @version  1.0
+// @in       w : width , h : height
+// @out      surface : new surface
+// @end
 static int gfx_CreateSurf(lua_State *L)
 {
 	SDL_Surface *p_surf;
@@ -100,18 +138,39 @@ static int gfx_CreateSurf(lua_State *L)
 	return 1;
 }
 
+// @function gfx.Width
+// @format   w = gfx.Width()
+// @describe width of main surface
+// @version  1.0
+// @in       
+// @out      w : width
+// @end
 static int gfx_Width(lua_State *L)
 {
 	lua_pushnumber(L,SCREEN_W);
 	return 1;
 }
 
+// @function gfx.Height
+// @format   h = gfx.Height()
+// @describe height of main surface
+// @version  1.0
+// @in       
+// @out      h : height
+// @end
 static int gfx_Height(lua_State *L)
 {
 	lua_pushnumber(L,SCREEN_H);
 	return 1;
 }
 
+// @function gfx.SurfWidth
+// @format   w = gfx.SurfWidth( surface )
+// @describe get width of surface
+// @version  1.0
+// @in       surface : surface
+// @out      w : width
+// @end
 static int gfx_SurfWidth(lua_State *L)
 {
 	SDL_Surface *p_surf = USERSURF(1);
@@ -124,6 +183,13 @@ static int gfx_SurfWidth(lua_State *L)
 	return 1;
 }
 
+// @function gfx.SurfHeight
+// @format   h = gfx.SurfHeight( surface )
+// @describe get height of surface
+// @version  1.0
+// @in       surface : surface
+// @out      h : height
+// @end
 static int gfx_SurfHeight(lua_State *L)
 {
 	SDL_Surface *p_surf = USERSURF(1);
@@ -135,6 +201,13 @@ static int gfx_SurfHeight(lua_State *L)
 	return 1;
 }
 
+// @function gfx.SurfSize
+// @format   w,h = gfx.SurfSize( surface )
+// @describe get surface size
+// @version  1.0
+// @in       surface : surface
+// @out      w : width , h : height
+// @end
 static int gfx_SurfSize(lua_State *L)
 {
 	SDL_Surface *p_surf = USERSURF(1);
@@ -153,6 +226,13 @@ static int gfx_SurfSize(lua_State *L)
 }
 
 
+// @function gfx.SaveSurf
+// @format   gfx.SaveSurf( surface , file )
+// @describe Save surface to BMP file
+// @version  1.0
+// @in       surface : surface , file : filename
+// @out      
+// @end
 static int gfx_SaveSurf(lua_State *L)
 {
 	SDL_Surface *p_surf = USERSURF(1);
@@ -164,11 +244,13 @@ static int gfx_SaveSurf(lua_State *L)
 	return 0;
 }
 
-
-
-///////////////////////
-// プリミティブ
-// 色の作成
+// @function gfx.Color
+// @format   color = gfx.Color( r , g , b )
+// @describe Create color from values
+// @version  1.0
+// @in       r : red , g : green , b : blue
+// @out      color : color
+// @end
 static int gfx_Color(lua_State *L)
 {
 	int r,g,b;
@@ -187,6 +269,13 @@ static int gfx_Color(lua_State *L)
 }
 
 
+// @function gfx.Pixel
+// @format   gfx.Pixel( x , y , color )
+// @describe Put pixel to current surface
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_Pixel(lua_State *L)
 {
 	int px,py;
@@ -207,6 +296,13 @@ static int gfx_Pixel(lua_State *L)
 	return 0;
 }
 
+// @function gfx.Line
+// @format   gfx.Line( x , y , dx , dy , color )
+// @describe Draw line to current surface
+// @version  1.0
+// @in       dx : destination x , dy : destination y
+// @out      
+// @end
 static int gfx_Line(lua_State *L)
 {
 	int cx,cy,px,py;
@@ -230,6 +326,13 @@ static int gfx_Line(lua_State *L)
 }
 
 
+// @function gfx.Poly
+// @format   gfx.Poly( tx , ty , color )
+// @describe Draw Polygon
+// @version  1.0
+// @in       tx : table of x , ty : table of y
+// @out      
+// @end
 static int gfx_Poly(lua_State *L)
 {
 	int i,len;
@@ -268,6 +371,13 @@ static int gfx_Poly(lua_State *L)
 	return 0;
 }
 
+// @function gfx.Box
+// @format   gfx.Box( x , y , dx , dy , color )
+// @describe Draw Box
+// @version  1.0
+// @in      
+// @out      
+// @end
 static int gfx_Box(lua_State *L)
 {
 	int x,y,dx,dy;
@@ -293,6 +403,13 @@ static int gfx_Box(lua_State *L)
 	return 0;
 }
 
+// @function gfx.BoxFill
+// @format   gfx.BoxFill( x , y , dx , dy , color )
+// @describe Fill Box 
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_BoxFill(lua_State *L)
 {
 	int x,y,dx,dy;
@@ -312,6 +429,13 @@ static int gfx_BoxFill(lua_State *L)
 	return 0;
 }
 
+// @function gfx.BoxGrad
+// @format   gfx.BoxGrad( x , y , dx , dy , color , color2 )
+// @describe Fill box with gradation
+// @version  1.0
+// @in       color : color at the top of box , color2 : color at the bottom of box
+// @out      
+// @end
 static int gfx_BoxGrad(lua_State *L)
 {
 	int x,y,dx,dy;
@@ -333,6 +457,13 @@ static int gfx_BoxGrad(lua_State *L)
 }
 
 
+// @function gfx.Circle
+// @format   gfx.Circle( x , y , radius , color )
+// @describe Draw circle
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_Circle(lua_State *L)
 {
 	int x,y,rad;
@@ -351,6 +482,13 @@ static int gfx_Circle(lua_State *L)
 	return 0;
 }
 
+// @function gfx.CircleFill
+// @format   gfx.CircleFill( x , y , radius , color )
+// @describe Fill circle
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_CircleFill(lua_State *L)
 {
 	int x,y,rad;
@@ -369,6 +507,13 @@ static int gfx_CircleFill(lua_State *L)
 	return 0;
 }
 
+// @function gfx.Clear
+// @format   gfx.Clear()
+// @describe Clear current surface
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_Clear(lua_State *L)
 {
 	SDL_FillRect(c_surf,NULL,0);
@@ -376,6 +521,13 @@ static int gfx_Clear(lua_State *L)
 }
 
 // 画像処理
+// @function gfx.Blit
+// @format   gfx.Blit( src_surface , x , y )
+// @describe Copy specified surface to current surface's specified coordinate
+// @version  1.0
+// @in       src_surface : source surface , x : coordinate x , y : coordinate y
+// @out      
+// @end
 static int gfx_Blit(lua_State *L)
 {
 	int x,y;
@@ -396,6 +548,13 @@ static int gfx_Blit(lua_State *L)
 }
 
 
+// @function gfx.CopySurf
+// @format   gfx.CopySurf( source , dest , sx , sy , sw , sh , dx , dy )
+// @describe Copy part of source source to destination surface
+// @version  1.0
+// @in       source : source surface , dest : destination surface
+// @out      
+// @end
 static int gfx_CopySurf(lua_State *L)
 {
 	SDL_Surface *src_surf  = USERSURF(1);
@@ -423,6 +582,13 @@ static int gfx_CopySurf(lua_State *L)
 	return 0;
 }
 
+// @function gfx.CopySurfAll
+// @format   gfx.CopySurfAll( src , dest )
+// @describe Copy whole of surface
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_CopySurfAll(lua_State *L)
 {
 	SDL_Surface *src  = USERSURF(1);
@@ -435,6 +601,13 @@ static int gfx_CopySurfAll(lua_State *L)
 
 
 
+// @function gfx.BlitRect
+// @format   gfx.BlitRect( source , sx , sy , sw , sh , dx ,dy )
+// @describe Copy a part of surface to current surface
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_BlitRect(lua_State *L)
 {
 	int sx,sy,sw,sh,dx,dy;
@@ -460,6 +633,13 @@ static int gfx_BlitRect(lua_State *L)
 	return 0;
 }
 
+// @function gfx.ImgLoad
+// @format   gfx.ImgLoad( file )
+// @describe Load Image from file
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_ImgLoad(lua_State *L)
 {
 	SDL_Surface *image = IMG_Load(lua_tostring(L,1));
@@ -484,6 +664,13 @@ static int gfx_ImgLoad(lua_State *L)
 	return 1;
 }
 
+// @function gfx.FreeSurf
+// @format   gfx.FreeSurf( surface )
+// @describe Free surface
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_FreeSurf(lua_State *L)
 {
 	SDL_Surface **surf = USERSURF_RAW(1);
@@ -503,6 +690,13 @@ static int gfx_FreeSurf(lua_State *L)
 
 ******************************************/
 
+// @function gfx.OpenFont
+// @format   font = gfx.OpenFont( fontfile , height )
+// @describe Open Font 
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_OpenFont(lua_State *L)
 {
 	const char *fontfile = lua_tostring(L,1);
@@ -521,6 +715,13 @@ static int gfx_OpenFont(lua_State *L)
 	return 1;
 }
 
+// @function gfx.CloseFont
+// @format   gfx.CloseFont( font )
+// @describe Close font
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_CloseFont(lua_State *L)
 {
 	TTF_CloseFont ( (TTF_Font *) lua_touserdata(L,1));
@@ -528,6 +729,13 @@ static int gfx_CloseFont(lua_State *L)
 	return 0;
 }
 
+// @function gfx.Text
+// @format   surface = gfx.Text( font , text , color )
+// @describe Draw text from specified parameters
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_Text(lua_State *L)
 {
 	
@@ -560,6 +768,13 @@ static int gfx_Text(lua_State *L)
 	return 1;
 }
 
+// @function gfx.UTF8Len
+// @format   len = gfx.UTF8Len( text )
+// @describe Get length of text in UTF8 encoding
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_UTF8Len(lua_State *L)
 {
 	const unsigned char *msg = lua_tostring(L,1);
@@ -571,6 +786,13 @@ static int gfx_UTF8Len(lua_State *L)
 	return 1;
 }
 
+// @function gfx.UTF8Next
+// @format   len = gfx.UTF8Next( text )
+// @describe Get length of current character in UTF8 encoding 
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_UTF8Next(lua_State *L)
 {
 	const unsigned char *msg = lua_tostring(L,1);
@@ -583,6 +805,13 @@ static int gfx_UTF8Next(lua_State *L)
 }
 
 
+// @function gfx.TextSize
+// @format   w , h = gfx.TextSize( font , text )
+// @describe Get text surface size
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int gfx_TextSize(lua_State *L)
 {
 	

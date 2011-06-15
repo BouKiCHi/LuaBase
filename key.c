@@ -110,6 +110,13 @@ int key_mat_up(int sw)
   Functions
 ************************/
 
+// @function key.Read
+// @format   key = key.Read()
+// @describe Read key data
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Read(lua_State *L)
 {
 	lua_pushnumber(L,g_key_current);
@@ -117,6 +124,13 @@ static int key_Read(lua_State *L)
 }
 
 
+// @function key.Up
+// @format   flag = key.Up()
+// @describe check up key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Up(lua_State *L)
 {
 	if (g_key_current & DG_MAT_UP)
@@ -128,6 +142,13 @@ static int key_Up(lua_State *L)
 }
 
 
+// @function key.Down
+// @format   flag = key.Down()
+// @describe check down key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Down(lua_State *L)
 {
 	if (g_key_current & DG_MAT_DOWN)
@@ -138,6 +159,13 @@ static int key_Down(lua_State *L)
 	return 1;
 }
 
+// @function key.Left
+// @format   flag = key.Left()
+// @describe check left key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Left(lua_State *L)
 {
 	if (g_key_current & DG_MAT_LEFT)
@@ -148,6 +176,13 @@ static int key_Left(lua_State *L)
 	return 1;
 }
 
+// @function key.Right
+// @format   flag = key.Right()
+// @describe check right key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Right(lua_State *L)
 {
 	if (g_key_current & DG_MAT_RIGHT)
@@ -158,6 +193,13 @@ static int key_Right(lua_State *L)
 }
 
 
+// @function key.A
+// @format   flag = key.A()
+// @describe Check A key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_A(lua_State *L)
 {
 	if (g_key_current & DG_MAT_A)
@@ -167,6 +209,13 @@ static int key_A(lua_State *L)
 	return 1;
 }
 
+// @function key.B
+// @format   flag = key.B()
+// @describe Check B key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_B(lua_State *L)
 {
 	if (g_key_current & DG_MAT_B)
@@ -176,6 +225,13 @@ static int key_B(lua_State *L)
 	return 1;
 }
 
+// @function key.X
+// @format   flag = key.X()
+// @describe Check X key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_X(lua_State *L)
 {
 	if (g_key_current & DG_MAT_X)
@@ -186,6 +242,13 @@ static int key_X(lua_State *L)
 }
 
 
+// @function key.Y
+// @format   flag = key.Y()
+// @describe Check Y key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Y(lua_State *L)
 {
 	if (g_key_current & DG_MAT_Y)
@@ -195,6 +258,13 @@ static int key_Y(lua_State *L)
 	return 1;
 }
 
+// @function key.L
+// @format   flag = key.L()
+// @describe Check L key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_L(lua_State *L)
 {
 	if (g_key_current & DG_MAT_L)
@@ -204,6 +274,13 @@ static int key_L(lua_State *L)
 	return 1;
 }
 
+// @function key.R
+// @format   flag = key.R()
+// @describe Check R key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_R(lua_State *L)
 {
 	if (g_key_current & DG_MAT_R)
@@ -213,6 +290,13 @@ static int key_R(lua_State *L)
 	return 1;
 }
 
+// @function key.Start
+// @format   flag = key.Start()
+// @describe Check Start key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Start(lua_State *L)
 {
 	if (g_key_current & DG_MAT_START)
@@ -222,6 +306,13 @@ static int key_Start(lua_State *L)
 	return 1;
 }
 
+// @function key.Select
+// @format   key.Select()
+// @describe Check Select key
+// @version  1.0
+// @in       
+// @out      
+// @end
 static int key_Select(lua_State *L)
 {
 	if (g_key_current & DG_MAT_SELECT)
@@ -233,22 +324,8 @@ static int key_Select(lua_State *L)
 
 
 /****************
- key.read()
- 
- 
- key.up()
- key.down()
- key.left()
- key.right()
- key.a()
- key.b()
- key.x()
- key.l()
- key.r()
- key.start()
- key.select()
- 
- ****************/
+ Register 
+****************/
 
 static const struct luaL_reg key_lib[] =
 {

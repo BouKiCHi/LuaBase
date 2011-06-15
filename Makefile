@@ -74,9 +74,9 @@ LIBS += -llua
 #
 OBJFILES = main.o mini_gui.o key.o system.o graph.o mixer.o
 
-SRCFILES = debug_draw.c graph.c key.c main.c mini_gui.c mixer.c system.c
+API_SRC = key.c system.c graph.c mixer.c
+SRCFILES = $(API_SRC) debug_draw.c main.c mini_gui.c 
 SRCFILES += graph.h key.h mini_gui.h mixer.h system.h autogen.py
-
 
 ifdef DEBUG
 CFLAGS += -g
@@ -130,6 +130,9 @@ zip : release
 clean :
 	$(RM) -f $(OBJS) $(TARGET)
 	$(RM) -rf $(RELEASE_DIR)
+	
+docs :
+	python docgen.py $(API_SRC)
 
 ifndef A320
 a320 :

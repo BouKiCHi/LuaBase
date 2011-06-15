@@ -134,8 +134,6 @@ def write_list ( file , list ):
 def read_list ( file ):
 	l_lines = []
 
-	print "File : %s" % file
-
 	f = open( file )
 	if f is None:
 		return None
@@ -153,7 +151,7 @@ def insert_docpart ( file , d_funcdoc , l_func ):
 	l_doc = []
 	list = read_list ( file )
 	i_line = 0
-
+	add_newdoc = False
 
 	for part in l_func:
 		func     = part[0]
@@ -165,17 +163,20 @@ def insert_docpart ( file , d_funcdoc , l_func ):
 		i_line = lineno
 		
 		if not d_funcdoc.has_key ( lua_func ):
+			add_newdoc = True
 			d_doc = new_doc ( lua_func )
 			l_doc.extend( make_doc ( d_doc , i_space ) )
+			
 		
 
 	l_doc.extend( list[i_line:] )
 
-
-	outfile = "docs." + file 
-	print "outfile : %s" % outfile
+	if add_newdoc:
+		outfile = "docs." + file 
+		print "outfile : %s" % outfile
 	
-	write_list ( outfile , l_doc )
+		write_list ( outfile , l_doc )
+
 	# disp_list ( l_doc )
 
 
