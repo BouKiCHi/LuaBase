@@ -56,15 +56,19 @@ LIBS += -lSDL_ttf
 LIBS += -lSDL_image
 LIBS += -lSDL_mixer
 
+LIBS   += $(LUA_LIBS)   $(EXTRA_LIBS)
+CFLAGS += $(LUA_CFLAGS) $(EXTRA_CFLAGS)
+
+LUA_CFLAGS = 
+LUA_LIBS = -llua
+
 -include config.mk
 
 # LIBS += `taglib-config --libs`
 # LIBS +=  -ltag_c -lsqlite3
 # CFLAGS += `taglib-config --cflags`
 
-#
-# 
-#
+
 OBJFILES = main.o mini_gui.o key.o system.o graph.o mixer.o
 
 API_SRC = key.c system.c graph.c mixer.c
@@ -140,3 +144,4 @@ a320_clean :
 a320_release :
 	make A320=1 RELEASE=1 release
 endif
+
