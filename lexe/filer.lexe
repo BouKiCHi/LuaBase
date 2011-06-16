@@ -22,6 +22,8 @@ function mod.execution( path )
 		mod.submod.start()
 		return 0
 	else
+		local dir = file_dir( path )
+		system.ChDir ( dir )
 		system.Execute( path )
 		return 0
 	end

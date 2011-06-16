@@ -57,7 +57,13 @@ end
 
 function file_name ( path )
 	pattern = string.format( ".*%s(.*)" , pathdiv )
-	
+	return string.match ( path , pattern )
+end
+
+-- get file part of the path
+
+function file_dir ( path )
+	pattern = string.format( "(.*)%s.*" , pathdiv )
 	return string.match ( path , pattern )
 end
 

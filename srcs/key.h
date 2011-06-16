@@ -39,6 +39,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+int key_get_data(void);
 void key_register(lua_State *L);
 int key_mat_down(int sw);
 int key_mat_up(int sw);

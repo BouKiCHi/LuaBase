@@ -260,7 +260,6 @@ function mod.checkKey()
 		mod.doFinish()
 	end
 
-
 	if key.A()
 	then
 		mod.setResult( mod.cursor + mod.pos )

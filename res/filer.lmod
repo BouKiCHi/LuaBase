@@ -42,6 +42,13 @@ function mod.changePath ( path )
 	system.ChDir( current )
 end
 
+-- go to parent dir 
+
+function mod.goParentDir ()
+	mod.changePath ( ".." )
+	mod.viewList()
+end
+
 -- go to home directory
 
 function mod.goHomeDir ()
@@ -114,7 +121,10 @@ function mod.checkNotify()
 		local result = mod.call.getResult()
 		
 		-- if press start ...
-		if result == -3 then
+		if result == -1 then
+			mod.goParentDir()
+		
+		elseif result == -3 then
 		
 			mod.goHomeDir()
 			

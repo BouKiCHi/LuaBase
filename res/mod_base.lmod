@@ -107,6 +107,12 @@ function mod.ignoreKey()
 end
 
 function mod.update()
+
+	if keyRepeat.isUpdate( mod.key ) and mod.checkKey
+	then
+		mod.checkKey()	
+	end
+
 	if mod.interval then
 		mod.interval()
 	end
@@ -126,12 +132,6 @@ function mod.update()
 	if keydata == 0 and mod.quit
 	then
 		mod.back()
-	end
-	
-	if keyRepeat.isUpdate( mod.key ) and mod.checkKey
-	then
-	
-		mod.checkKey()	
 	end
 	
 	if  keydata ~= 0 and mod.delay_ms > 0 and (not mod.win or not gui.isUpdate ( mod.win )) 

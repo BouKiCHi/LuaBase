@@ -12,8 +12,6 @@ function mod.doList()
 
 	mod.list = 
 	{
-		"test_gui.lmod",
-		"clock.lmod",
 		"iconlist.lmod",
 		"diag.lmod" ,
 		"filer.lmod",

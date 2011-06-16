@@ -1,4 +1,4 @@
--- test_gui.lmod
+-- test_gui.lexe
 
 local mod = do_module("mod_base.lmod")
 

@@ -201,7 +201,7 @@ void app_loop( char *file )
 					break;
 			}
 		}
-		
+
 		lua_getglobal(L, "update");
 		
 		if( lua_pcall(L, 0, 0, errfunc) )

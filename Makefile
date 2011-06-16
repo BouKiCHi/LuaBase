@@ -15,7 +15,7 @@ README = README
 MAKEFILE = Makefile
 DOCS_DIR = docs
 LICENSE_DIR = license 
-RELEASE_DIR = release
+RELEASE_DIR = release_dir
 STARTUP = startup.lua
 RESOURCE = res
 LEXE_DIR = lexe
@@ -39,7 +39,7 @@ DEVPFX = mipsel-linux-uclibc
 CC = $(DEVPFX)-gcc
 STRIP = $(DEVPFX)-strip
 CFLAGS += -D__A320__
-RELEASE_DIR = a320_release
+RELEASE_DIR = a320_release_dir
 
 TARGET := $(TARGET).a320
 BINDIR = $(shell dirname `which $(CC)`)
@@ -153,7 +153,7 @@ a320_zip :
 a320_clean :
 	make A320=1 clean
 	
-a320_release :
+a320_release : 
 	make A320=1 RELEASE=1 release
 	
 a320_rebuild : a320_clean a320_release
