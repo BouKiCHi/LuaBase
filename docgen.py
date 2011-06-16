@@ -27,11 +27,12 @@ def read_func( file ):
 		if m:
 			func     = "%s_%s" % (m.group(1),m.group(2))
 			lua_func = "%s.%s" % (m.group(1),m.group(2))
-			name = m.group(2)
+			pref  = m.group(1)
+			name  = m.group(2)
 			
 			if not d_func.has_key( func ):
 				d_func[ func ] = True
-				l_func.append( ( func , name , lua_func , lineno  ) )
+				l_func.append( ( func , name , lua_func , lineno , pref ) )
 	
 	return l_func
 
@@ -143,6 +144,54 @@ def read_list ( file ):
 	
 	return l_lines
 
+# Make wiki text
+def make_wikitext ( file , d_funcdoc , l_func ):
+	l_text = []
+	
+	l_text.append("= %s =\n" % l_func[0][4])
+	l_text.append("\n")
+	
+	for part in l_func:
+		func     = part[0] # aaa_bbb
+		name     = part[1] # bbb
+		lua_func = part[2] # aaa.bbb
+		lineno   = part[3]
+		pref     = part[4] # aaa
+		
+		if not d_funcdoc.has_key ( lua_func ):
+			d_doc = new_doc ( lua_func )
+		else:
+			d_doc = d_funcdoc [ lua_func ]
+		
+		l_text.append( "== %s ==\n\n" % lua_func )
+		l_text.append( "''' format '''\n\n")
+		l_text.append( " %s\n" % d_doc[ "format" ] )
+
+		if d_doc.has_key("in") and d_doc["in"] != "":
+			l_text.append( "''' in '''\n\n")
+			l_text.append( " %s\n" % d_doc[ "in" ] )
+
+		if d_doc.has_key("out") and d_doc["out"] != "":
+			l_text.append( "''' out '''\n\n")
+			l_text.append( " %s\n" % d_doc[ "out" ] )
+			
+		
+		l_text.append( "''' describe '''\n\n")
+		l_text.append( " %s\n" % d_doc[ "describe" ] )
+
+		
+		l_text.append( "''' version %s'''\n" % d_doc [ "version" ] )
+		l_text.append( "\n" )
+		
+
+	
+	outfile = "wiki." + file + ".text" 
+	print "wikifile : %s" % outfile
+	write_list ( outfile , l_text )
+
+	
+
+
 # Insert document part to file
 def insert_docpart ( file , d_funcdoc , l_func ):
 
@@ -154,7 +203,7 @@ def insert_docpart ( file , d_funcdoc , l_func ):
 	add_newdoc = False
 
 	for part in l_func:
-		func     = part[0]
+		func     = part[0] 
 		name     = part[1]
 		lua_func = part[2]
 		lineno   = part[3]
@@ -200,4 +249,5 @@ for i in range(len(sys.argv) - 1):
 	d_funcdoc = read_doc( file )
 	
 	insert_docpart ( file , d_funcdoc , l_func )
+	make_wikitext ( file , d_funcdoc , l_func )
 	

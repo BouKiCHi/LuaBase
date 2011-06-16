@@ -62,40 +62,60 @@ function mod.setTextBody ( body )
 	gui.setUpdate ( mod.win )
 end
 
+function mod.calcOfs ()
+	mod.curofs = 0
+	mod.curmax = mod.lines
+
+	if mod.hasHeader then
+		mod.curofs = mod.curofs + 1
+		mod.curmax = mod.curmax - 1
+	end
+
+	if mod.hasFooter then
+		mod.curmax = mod.curmax - 1
+	end
+	
+end
+
+
+function mod.setFooter ( text )
+	if text ~= "" then
+		mod.hasFooter = true
+		mod.footer = text
+		
+		gui.setTextColor ( mod.line_objs[ mod.lines ] , graph.Color( 0xff,0xff,0xff ) )
+
+		gui.setHide ( mod.footObj , false )
+
+	else
+		mod.hasFooter = false
+		gui.removeColor ( mod.line_objs, "text" )
+		gui.setHide ( mod.footObj , true )		
+	end
+	mod.calcOfs()
+	mod.updateCursor()
+	mod.updateText ( mod.pos )
+	gui.setUpdate ( mod.win )
+end
+
 function mod.setHeader ( text )
 	if text ~= "" then
 		mod.hasHeader = true
 		mod.header = text
-		mod.curofs = 1
-		mod.curmax = mod.lines - 1
 		
 		gui.setTextColor ( mod.line_objs[1] , graph.Color( 0xff,0xff,0xff ) )
-	
-		local back_color = {
-			graph.Color( 0xff,0xff,0xff ),
-			graph.Color( 0x80,0x80,0xf0 ),
-			graph.Color( 0x60,0x60,0x80 )
-		}
-		gui.setColor ( mod.headObj , "back" , back_color )		
 
 		gui.setHide ( mod.headObj , false )
 
 	else
-
 		mod.hasHeader = false
-		mod.curofs = 0
-		mod.curmax = mod.lines
 		gui.removeColor ( mod.line_objs, "text" )
-		gui.removeColor ( mod.line_objs, "back" )
-
-		gui.setHide ( mod.headObj , true )
-
-		
+		gui.setHide ( mod.headObj , true )		
 	end
+	mod.calcOfs()
 	mod.updateCursor()
 	mod.updateText ( mod.pos )
 	gui.setUpdate ( mod.win )
-
 end
 
 function mod.updateCursor ()
@@ -113,6 +133,12 @@ function mod.updateText( pos )
 		h = h - 1
 		gui.setText( mod.line_objs [ 1 ] , mod.header )
 	end
+	
+	if mod.hasFooter then
+		h = h - 1
+		gui.setText( mod.line_objs [ mod.lines ] , mod.footer )
+	end
+
 
 	for i = 1,h
 	do
@@ -147,14 +173,28 @@ function mod.buildGUI()
 		gui.appendChild( view , obj )
 		table.insert ( mod.line_objs , obj )		
 	end
+	
+	local footObj   = gui.createBox ( 0 , mod.ch * (mod.lines - 1) , mod.win.w - 10 , mod.ch  )
+	
+	local back_color = {
+		graph.Color( 0xff,0xff,0xff ),
+		graph.Color( 0x80,0x80,0xf0 ),
+		graph.Color( 0x60,0x60,0x80 )
+	}
+	gui.setColor ( headObj , "back" , back_color )		
+	gui.setColor ( footObj , "back" , back_color )
 
 	mod.pos = 0
 
 	mod.bar = bar
 	mod.headObj   = headObj
+	mod.footObj   = footObj
 	mod.cursorObj = cursorObj
 	
-	gui.setHide ( mod.headObj , true )
+	gui.setHide ( headObj , true )
+	gui.setHide ( footObj , true )
+	
+	
 
 	mod.updateText ( mod.pos )
 
@@ -162,6 +202,7 @@ function mod.buildGUI()
 	gui.setScrollPos ( mod.bar , 0 )
 
 	gui.append ( mod.win , box )
+	gui.append ( mod.win , footObj )
 	gui.append ( mod.win , headObj )
 	gui.append ( mod.win , cursorObj )
 	gui.append ( mod.win , view )

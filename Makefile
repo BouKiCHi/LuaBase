@@ -29,6 +29,9 @@ CFLAGS += -O3
 STRIP_DO = 1
 endif
 
+
+SRCDIR = srcs
+
 ifdef A320
 OBJDIR = a320_objs
 DEVPFX = mipsel-linux-uclibc
@@ -110,7 +113,7 @@ ifdef STRIP_DO
 	$(STRIP) $@
 endif
 
-$(OBJDIR)/%.o : %.c
+$(OBJDIR)/%.o : $(SRCDIR)/%.c
 	$(CC) -c $(SDL_CFLAGS) $(CFLAGS) -o $@ $<
 	
 zipsrc : 

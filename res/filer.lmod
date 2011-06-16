@@ -47,7 +47,8 @@ function mod.viewList()
 	listview.setTextBody( list )
 	
 	
-	listview.setHeader( "<<" .. mod.path .. ">>" ) 
+	listview.setHeader( " Filer " ) 
+	listview.setFooter( "<<" .. mod.path .. ">>" ) 
 end
 
 function mod.readDir( path )
