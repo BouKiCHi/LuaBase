@@ -17,6 +17,7 @@ extern int g_launch;
 extern char g_luafile[SYS_MAXPATH];
 extern char g_launch_cmd[SYS_MAXPATH];
 
+void system_exec(void);
 void system_set_dir(const char *exec,const char *script);
 void system_register(lua_State *L);
 

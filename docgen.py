@@ -5,6 +5,7 @@
 
 import sys
 import re
+import os
 
 
 # Read function from file
@@ -143,6 +144,15 @@ def read_list ( file ):
 	f.close()
 	
 	return l_lines
+	
+def add_prefix( path , prefix , suffix ):
+	dir = os.path.dirname( path )
+	name = os.path.basename( path )
+	
+	name = "%s%s%s" % ( prefix , name , suffix )
+	
+	return os.path.join( dir , name )
+
 
 # Make wiki text
 def make_wikitext ( file , d_funcdoc , l_func ):
@@ -185,7 +195,7 @@ def make_wikitext ( file , d_funcdoc , l_func ):
 		
 
 	
-	outfile = "wiki." + file + ".text" 
+	outfile = add_prefix( file , "wiki.", ".text" ) 
 	print "wikifile : %s" % outfile
 	write_list ( outfile , l_text )
 
@@ -221,9 +231,8 @@ def insert_docpart ( file , d_funcdoc , l_func ):
 	l_doc.extend( list[i_line:] )
 
 	if add_newdoc:
-		outfile = "docs." + file 
+		outfile = add_prefix( file , "docs.", "" ) 
 		print "outfile : %s" % outfile
-	
 		write_list ( outfile , l_doc )
 
 	# disp_list ( l_doc )

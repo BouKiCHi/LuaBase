@@ -12,7 +12,7 @@ function init()
 	gui.init()
 	do_module("info.lmod")
 
-	main = do_module( "launch_mod.lua" )
+	main = do_execute( "filer.lexe" )
 	main.start()
 end
 

@@ -18,6 +18,7 @@ LICENSE_DIR = license
 RELEASE_DIR = release
 STARTUP = startup.lua
 RESOURCE = res
+LEXE_DIR = lexe
 
 EXE_PACK = $(TARGET)_$(DATE_CMD).zip
 SRC_PACK = $(TARGET)_$(DATE_CMD)_src.zip
@@ -74,9 +75,14 @@ LUA_LIBS = -llua
 
 OBJFILES = main.o mini_gui.o key.o system.o graph.o mixer.o
 
-API_SRC = key.c system.c graph.c mixer.c
-SRCFILES = $(API_SRC) debug_draw.c main.c mini_gui.c 
-SRCFILES += graph.h key.h mini_gui.h mixer.h system.h autogen.py
+API_SRCNAME = key.c system.c graph.c mixer.c
+SRCNAME = $(API_SRCNAME) debug_draw.c main.c mini_gui.c 
+SRCNAME += graph.h key.h mini_gui.h mixer.h system.h 
+
+SCRIPTS = autogen.py docgen.py
+
+SRCFILES = $(addprefix $(SRCDIR)/,$(SRCNAME))
+API_SRCFILES = $(addprefix $(SRCDIR)/,$(API_SRCNAME))
 
 ifdef DEBUG
 CFLAGS += -g
@@ -100,6 +106,7 @@ endif
 
 	cp $(STARTUP) $(RELEASE_DIR)
 	cp -r $(RESOURCE) $(RELEASE_DIR)
+	cp -r $(LEXE_DIR) $(RELEASE_DIR)
 	
 
 $(OBJDIR) :
@@ -121,8 +128,10 @@ zipsrc :
 	zip $(SRC_PACK) $(MAKEFILE)
 	zip $(SRC_PACK) $(STARTUP)
 	zip $(SRC_PACK) $(SRCFILES)
+	zip $(SRC_PACK) $(SCRIPTS)
 	zip -r $(SRC_PACK) $(LICENSE_DIR)
 	zip -r $(SRC_PACK) $(RESOURCE)
+	zip -r $(SRC_PACK) $(LEXE_DIR)
 	
 zip : release
 	cd $(RELEASE_DIR) ; zip -r ../$(EXE_PACK) *
@@ -132,7 +141,7 @@ clean :
 	$(RM) -rf $(RELEASE_DIR)
 	
 docs :
-	python docgen.py $(API_SRC)
+	python docgen.py $(API_SRCFILES)
 
 ifndef A320
 a320 :
@@ -146,5 +155,8 @@ a320_clean :
 	
 a320_release :
 	make A320=1 RELEASE=1 release
+	
+a320_rebuild : a320_clean a320_release
+
 endif
 

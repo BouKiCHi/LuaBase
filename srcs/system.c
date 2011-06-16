@@ -19,6 +19,7 @@ int g_back;
 int g_quit;
 int g_calllua;
 int g_launch;
+int g_exec;
 
 int  g_result;
 char g_result_str[SYS_STRING];
@@ -31,6 +32,18 @@ char g_script_dir[SYS_MAXPATH];
 char g_exec_dir[SYS_MAXPATH];
 char g_luafile[SYS_MAXPATH];
 char g_launch_cmd[SYS_MAXPATH];
+
+char *g_exec_path = NULL;
+char *g_exec_argv[128];
+
+void system_exec(void)
+{
+	if (!g_exec || !g_exec_path)
+		return;
+	
+	// the function doesn't return if success.
+	execvp( g_exec_path , g_exec_argv );
+}
 
 
 void system_set_dir(const char *exec,const char *script)
@@ -622,6 +635,49 @@ static int system_Launch(lua_State *L)
 	return 0;
 }
 
+
+// @function system.Execute
+// @format   system.Execute( exec , ... )
+// @describe Execute command
+// @version  1.0
+// @in       
+// @out      
+// @end
+static int system_Execute(lua_State *L)
+{	
+	int i,top;
+	
+	top = lua_gettop(L);
+	
+	if (top < 1)
+	{
+		printf("Error : a few less than requested argument to execute\n");
+		
+		g_quit = 1;
+		lua_pushboolean( L , 1 );
+		return 1;
+	}
+	else
+	{
+		g_exec_path = strdup ( lua_tostring ( L , 1 ) );
+		
+		for ( i = 0; i < top; i++ ) 
+		{
+			g_exec_argv[ i ] = strdup ( lua_tostring( L , 1 + i ) );			
+		}
+		
+		g_exec_argv[ i ] = NULL;
+	
+	}
+
+	g_quit = 1;
+	g_exec = 1;
+
+	lua_pushboolean( L , 0 );
+	return 1;
+}
+
+
 // @function system.PathDiv
 // @format   div = system.PathDiv()
 // @describe Get path divider of current environment
@@ -678,6 +734,7 @@ static const struct luaL_reg system_lib[] =
 	{ "GetScriptDir"      , system_GetScriptDir },
 	{ "CallLua"           , system_CallLua },
 	{ "Launch"            , system_Launch },
+	{ "Execute"           , system_Execute },
 	{ "PathDiv"           , system_PathDiv },
 	
 	
@@ -686,9 +743,13 @@ static const struct luaL_reg system_lib[] =
 
 void system_register(lua_State *L)
 {
-	g_launch = 0;
+	g_exec_path = NULL;
+	g_exec_argv[0] = NULL;
+
+	g_exec    = 0;
+	g_launch  = 0;
 	g_calllua = 0;
-	g_quit   = 0;
+	g_quit    = 0;
 	luaL_openlib(L,"system",system_lib,0);
 }
 

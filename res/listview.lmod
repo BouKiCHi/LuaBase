@@ -242,12 +242,24 @@ function mod.checkKey()
 			end
 		end
 	end
-
-	if key.Select() or key.B()
+	if key.B()
 	then
 		mod.setResult( -1 )
 		mod.doFinish()
 	end
+	
+	if key.Select()
+	then
+		mod.setResult( -2 )
+		mod.doFinish()
+	end
+	
+	if key.Start()
+	then
+		mod.setResult( -3 )
+		mod.doFinish()
+	end
+
 
 	if key.A()
 	then

@@ -264,6 +264,8 @@ int main(int argc,char *argv[])
 	
 	app_free();
 	
+	system_exec();
+	
 	if (g_launch)
 		system(g_launch_cmd);
 

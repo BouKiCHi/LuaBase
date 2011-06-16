@@ -1,4 +1,4 @@
--- main.lua
+-- filer.lmod
 
 local mod = do_module("mod_base.lmod")
 local listview = do_module("listview.lmod")
@@ -20,11 +20,16 @@ function mod.init()
 	mod.viewList()
 end
 
+-- set path
+
 function mod.setPath( path )
 	mod.path = path
 
 	mod.setConfigValue ( "path" , path )
 end
+
+
+-- change path
 
 function mod.changePath ( path )
 	local current = system.GetCwd()
@@ -35,7 +40,13 @@ function mod.changePath ( path )
 	mod.setPath( system.GetCwd() )
 	
 	system.ChDir( current )
+end
 
+-- go to home directory
+
+function mod.goHomeDir ()
+	mod.changePath ( system.GetExecDir() )
+	mod.viewList()
 end
 
 function mod.viewList()
@@ -49,16 +60,24 @@ function mod.viewList()
 	
 	listview.setHeader( " Filer " ) 
 	listview.setFooter( "<<" .. mod.path .. ">>" ) 
+	
+end
+
+function mod.setTitle ( title )
+
+	listview.setHeader( title )
+
 end
 
 function mod.readDir( path )
+
 	local list = {}
 
 	local current = system.GetCwd()
 	system.ChDir ( path )
 
-	local dir = system.OpenDir(".")
-	local ent = system.ReadDir(dir)
+	local dir = system.OpenDir( "." )
+	local ent = system.ReadDir( dir )
 	
 	mod.files = {}
 	
@@ -87,25 +106,38 @@ function mod.readDir( path )
 	return list
 end
 
+
 function mod.checkNotify()
+
 	if mod.call and mod.call.isDone()
 	then
 		local result = mod.call.getResult()
-		if result < 0 then
+		
+		-- if press start ...
+		if result == -3 then
+		
+			mod.goHomeDir()
+			
+		-- other cancel button ...
+		elseif result < 0 then
 			mod.doFinish()
 		else
+			-- a file is selected ...
+			
 			local fi = mod.files[ result + 1 ]
 			if fi.isdir then
+				-- it's a directory ...
 				mod.changePath ( fi.name )
+				mod.call = nil
+				mod.viewList()
 			else
+				-- it's a file ...
 				local dir = system.GetCwd ()
-				local path =  dir .. system.PathDiv() .. fi.name
+				local path =  mod.path .. system.PathDiv() .. fi.name
 				mod.setResult ( path )
 				mod.doFinish()
 			end
 			
-			mod.call = nil
-			mod.viewList()
 		end
 	end
 end

@@ -1,4 +1,4 @@
--- launch_mod.lua
+-- launch.lexe
 
 local mod = do_module("mod_base.lmod")
 
@@ -10,7 +10,8 @@ end
 
 function mod.doList()
 
-	mod.list = {
+	mod.list = 
+	{
 		"test_gui.lmod",
 		"clock.lmod",
 		"iconlist.lmod",
@@ -24,6 +25,7 @@ function mod.doList()
 	mod.submod.start()
 	mod.submod.setTextBody( mod.list )
 	mod.submod.setHeader ( " -- MODULE TEST -- " )
+	
 end
 
 function mod.checkNotify()

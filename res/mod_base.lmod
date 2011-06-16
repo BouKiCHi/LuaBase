@@ -42,6 +42,8 @@ function mod.back()
 
 	mod.free()
 	update = mod.restore.update
+	
+	layer.updateForce()
 		
 	mod.done = true
 end

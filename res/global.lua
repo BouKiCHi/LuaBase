@@ -1,40 +1,79 @@
 -- global.lua
 
 
--- ファイル関連
+-- File stuff
 
 local sysdir = system.GetExecDir()
 local pathdiv = system.PathDiv()
 local conf_dir = sysdir .. pathdiv .. "conf"
 
 local resource_dir = sysdir .. pathdiv .. "res"
+local lexe_dir = sysdir .. pathdiv .. "lexe"
 
-function do_module( name )
-	local module = dofile ( file_resfile( name ) )
+
+function do_luafile( path , name )
+	local module = dofile ( path )
+	
+	if name == nil then
+		name = file_name ( path )	
+	end
+	
 	if type(module) == "table" then
 		module.moduleFile = name
 	end
 	return module
 end
 
+function do_execute( name )
+	return do_luafile ( file_lexefile( name ) , name )
+end
+
+
+function do_module( name )
+	return do_luafile ( file_resfile( name ) , name )
+end
+
+
+-- get full path of file in the lexe directory
+
+function file_lexefile( name )
+	return lexe_dir .. pathdiv .. name
+end
+
+
 function file_resfile( name )
 	return resource_dir .. pathdiv .. name
 end
+
+
+-- get full path of file in the resource directory
 
 function file_respath( path )
 	return file_resfile( path )
 end
 
+
+-- get file part of the path
+
+function file_name ( path )
+	pattern = string.format( ".*%s(.*)" , pathdiv )
+	
+	return string.match ( path , pattern )
+end
+
+-- get base part of the filename
 function file_basename ( name )
 	return string.match( name , "([^\.]*)..*" )
 end
 
+-- Get extension of the filename
 function file_ext ( name )
 	return  string.match( name ,"[^\.]*\.(.*)")
 end
 
 
--- オブジェクト操作
+-- Object handling
+
 function copy_object ( srcobj )
 	destobj = {}
 	for k,v in ipairs( srcobj ) 
@@ -55,7 +94,8 @@ function disp_object ( srcobj )
 	end
 end
 
--- レイヤー関連
+-- Layer stuff
+
 layer = {}
 layer.table = {}
 
@@ -68,11 +108,18 @@ function layer.update()
 	for k,v in pairs(layer.table) do v.update() end
 end
 
+
+function layer.updateForce()
+	for k,v in pairs(layer.table) do v.updateForce() end
+end
+
+
 function layer.free()
 	for k,v in pairs(layer.table) do v.free() end
 end
 
--- フォント関連
+-- Font stuff
+
 font = {}
 
 function font.load( size )
@@ -91,7 +138,7 @@ function font.close( ttf )
 	end
 end
 
--- キーリピート関連
+-- Key Repeater Stuff
 keyRepeat  = {}
 
 function keyRepeat.new()
@@ -153,7 +200,7 @@ function keyRepeat.pressAnyKey ( obj )
 	return true
 end
 
--- コンフィグ関連
+-- Config stuff
 
 config = {}
 
@@ -277,12 +324,12 @@ function config.test ()
 end
 
 
--- GUI関連
+-- GUI stuff
 
 gui = {}
 gui.draw = {}
 
--- 初期化
+-- Initialize
 function gui.init()
 
 	if not gui.font then

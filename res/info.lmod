@@ -2,15 +2,10 @@
 
 local info = {}
 
-function info.draw()
+function info.drawForce()
 
 	local dt = os.date("*t")
-	
-	if dt.hour == info.pastHour and dt.min == info.pastMin 
-	then
-		return
-	end
-	
+
 	info.pastHour = dt.hour
 	info.pastMin = dt.min
 	info.batt = system.ReadBatt() / 1000
@@ -30,11 +25,20 @@ function info.draw()
 	graph.Blit( luastr , 1 , 1 )
 	graph.FreeSurf( luastr ) 
 	graph.Blit( luastr2 , 0 , 0 )
-	graph.FreeSurf( luastr2 ) 
+	graph.FreeSurf( luastr2 ) 		
+end
 
+function info.draw()
 
-	graph.Update()
+	local dt = os.date("*t")
 	
+	if dt.hour == info.pastHour and dt.min == info.pastMin 
+	then
+		return
+	end
+	
+	info.drawForce()
+
 end
 
 function info.init()
@@ -52,14 +56,10 @@ function info.init()
 	info.draw()
 end
 
-function info.update()
-	info.draw()
-end
-
 function info.free()
 	font.close( info.ttf )
 end
 
-layer.register({ init = info.init , update = info.update , free = info.free })
+layer.register({ init = info.init , update = info.draw , updateForce = info.drawForce , free = info.free })
 
 
