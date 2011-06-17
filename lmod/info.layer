@@ -1,6 +1,9 @@
--- info.lua
+-- info.layer
 
 local info = {}
+
+info.wday    = { "Sun","Mon","Tue","Wed","Thu","Fri","Sat" }
+
 
 function info.drawForce()
 
@@ -10,7 +13,9 @@ function info.drawForce()
 	info.pastMin = dt.min
 	info.batt = system.ReadBatt() / 1000
 	
-	local time_str = string.format("%02d:%02d %.2fV",dt.hour,dt.min ,info.batt ) 
+	local time_str = string.format("%2d/%2d(%s) %02d:%02d %.2fV",
+		dt.month,dt.day,info.wday[ dt.wday ],
+		dt.hour,dt.min ,info.batt ) 
 
 	local text = graph.Text ( info.ttf , time_str , info.fgc )
 	local sw = graph.SurfWidth ( text )
@@ -34,11 +39,11 @@ function info.draw()
 	
 	if dt.hour == info.pastHour and dt.min == info.pastMin 
 	then
-		return
+		return false
 	end
 	
 	info.drawForce()
-
+	return true
 end
 
 function info.init()

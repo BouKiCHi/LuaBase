@@ -7,10 +7,10 @@ end
 
 function init()
 	
-	dofile(system.GetExecDir() .. system.PathDiv() .. "res" .. system.PathDiv() .. "global.lua")
+	dofile(system.GetExecDir() .. system.PathDiv() .. "lmod" .. system.PathDiv() .. "global.lua")
 
 	gui.init()
-	do_module("info.lmod")
+	do_module("info.layer")
 
 	main = do_execute( "filer.lexe" )
 	main.start()

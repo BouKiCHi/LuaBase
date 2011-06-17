@@ -75,7 +75,7 @@ void app_draw_poly(SDL_Surface *p , int angle )
 	gui_draw_poly_fill ( p , x , y , n , color );
 }
 
-void app_draw(SDL_Surface *surface)
+void app_draw_mix(SDL_Surface *surface)
 {
 	static int angle = 0;
 	SDL_Color gray = { 0x80,0x80,0x80,0x00 };
@@ -110,6 +110,36 @@ void app_draw(SDL_Surface *surface)
 		SDL_UnlockSurface(surface);
 	
 	angle = (angle + 1) % 512;
+}
+
+
+void app_draw(SDL_Surface *surface)
+{
+	static int angle = 5;
+	SDL_Color gray = { 0x80,0x80,0x80,0x00 };
+	SDL_Color black = { 0x00,0x00,0x00,0x00 };
+	SDL_Color white = { 0xff,0xff,0xff,0x00 };
+	
+	int px,py;
+	int cx,cy;
+	cx = SCREEN_W / 2;
+	cy = SCREEN_H / 2;
+	
+	px = cx + cos( (3.141592 / 256) * angle) * 60;
+	py = cy + sin( (3.141592 / 256) * angle) * 60;
+	
+	if (SDL_MUSTLOCK(surface))
+		SDL_LockSurface(surface);
+	
+	gui_draw_box_fill(surface,0,0,SCREEN_W,SCREEN_H, black );
+
+	gui_draw_circle(surface, cx , cy , angle , gray );
+	
+	
+	if (SDL_MUSTLOCK(surface))
+		SDL_UnlockSurface(surface);
+	
+	// angle = (angle + 1) % 256;
 }
 
 

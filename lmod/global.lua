@@ -9,6 +9,8 @@ local conf_dir = sysdir .. pathdiv .. "conf"
 
 local resource_dir = sysdir .. pathdiv .. "res"
 local lexe_dir = sysdir .. pathdiv .. "lexe"
+local lmod_dir = sysdir .. pathdiv .. "lmod"
+local lsub_dir = sysdir .. pathdiv .. "lsub"
 
 
 function do_luafile( path , name )
@@ -30,23 +32,23 @@ end
 
 
 function do_module( name )
-	return do_luafile ( file_resfile( name ) , name )
+	return do_luafile ( file_lmodfile( name ) , name )
 end
 
 
--- get full path of file in the lexe directory
+-- get full path of file
 
 function file_lexefile( name )
 	return lexe_dir .. pathdiv .. name
 end
 
+function file_lmodfile( name )
+	return lmod_dir .. pathdiv .. name
+end
 
 function file_resfile( name )
 	return resource_dir .. pathdiv .. name
 end
-
-
--- get full path of file in the resource directory
 
 function file_respath( path )
 	return file_resfile( path )
@@ -111,7 +113,12 @@ function layer.register(t)
 end
 
 function layer.update()
-	for k,v in pairs(layer.table) do v.update() end
+	flag = false
+	for k,v in pairs(layer.table) 
+	do 
+		if v.update() then flag = true end
+	end
+	return flag
 end
 
 
@@ -472,11 +479,24 @@ function gui.draw.text ( win , bx , by , obj )
 		return
 	end
 
-	local color = gui.getColor( obj , "text" )
-	
-	local lines = gui.getLines ( obj )
-	
 	local line
+
+	local color = gui.getColor( obj , "text" )
+	local lines = gui.getLines ( obj )	
+	
+	local x = bx + obj.size.x
+	local y = by + obj.size.y
+
+	if obj.cache.text == obj.string and obj.cache.textColor == color
+	then
+		for k,v in pairs(obj.cache.textsurf)
+		do
+			graph.Blit( v.text , v.x , v.y )
+		end
+		return
+	end
+	
+	local textsurf = {}
 	
 	for line = 1,#lines
 	do
@@ -485,18 +505,16 @@ function gui.draw.text ( win , bx , by , obj )
 		local tw = graph.SurfWidth( text )
 		local th = graph.SurfHeight( text )
 		
-		if obj.size.w == 0 and obj.size.h == 0 then
+		if obj.size.h == 0 and obj.size.h == 0 then
 			obj.size.w = tw
 			obj.size.h = th * #lines
 		end
 		
-		local ty = th * #lines
-
-
-		local x = bx + obj.size.x
-		local y = by + obj.size.y 
 		local w = obj.size.w
 		local h = obj.size.h
+		
+		local tmh = th * #lines
+
 
 		if obj.assign.horizon == gui.assign.center 
 		then
@@ -508,17 +526,22 @@ function gui.draw.text ( win , bx , by , obj )
 		
 		if obj.assign.vertical == gui.assign.center
 		then
-			y = y + (h/2) - (ty / 2) + (th * (line-1))
+			y = y + (h/2) - (tmh / 2) + (th * (line-1))
 		elseif obj.assign.vertical == gui.assign.bottom
 		then
-			y = y + h - ty + (th * (line-1))
+			y = y + h - tmh + (th * (line-1))
 		end
 		
 		graph.Blit( text , x , y )
 		
-		graph.FreeSurf( text )
+		table.insert ( textsurf, { text = text , x = x , y = y } )
 		
 	end
+	
+	obj.cache.textsurf = textsurf
+	obj.cache.text = obj.string
+	obj.cache.textColor = color
+	
 end
 
 function gui.draw.borderPrimitive ( x , y , w , h , c1 , c2 )
@@ -563,8 +586,6 @@ function gui.draw.box ( win , bx , by , obj )
 	local hs = (size.h/2)
 	local hse = size.h-hs
 	
-	graph.Lock()
-
 	local color = gui.getColor ( obj , "back" )
 	
 	if win.focusView and obj.focused then
@@ -578,17 +599,31 @@ function gui.draw.box ( win , bx , by , obj )
 	if obj.disable then
 		color = gui.getColor ( obj , "disable" )
 	end
+	
+	if obj.cache.color ~= color or obj.cache.w ~= size.w or obj.cache.h ~= size.h 
+	then
+		graph.Lock()
 
-	if type(color) == "table" then
-		graph.BoxGrad( x , y , fw , hs , color[1] , color[2] )
-		graph.BoxGrad( x , y + hs , fw , hse , color[2] , color[3] )
+		if type(color) == "table" then
+			graph.BoxGrad( x , y , fw , hs , color[1] , color[2] )
+			graph.BoxGrad( x , y + hs , fw , hse , color[2] , color[3] )
+		else
+			graph.BoxFill( x , y , fw , size.h , color )
+		end
+	
+		graph.Unlock()
+		gui.draw.border ( win , bx , by , obj )
+
+		obj.cache.surf = graph.CreateSurf( size.w + 1, size.h + 1 ) 
+		graph.CopySurf( graph.MainSurf() , obj.cache.surf , x , y , size.w + 1, size.h + 1 )
+		
+		obj.cache.color = color
+		obj.cache.w = size.w
+		obj.cache.h = size.h		
+		
 	else
-		graph.BoxFill( x , y , fw , size.h , color )
+		graph.Blit( obj.cache.surf , x , y )
 	end
-	
-	graph.Unlock()
-	
-	gui.draw.border ( win , bx , by , obj )
 end
 
 
@@ -650,6 +685,7 @@ function gui.createView ( x , y , w , h )
 	newobj.font = gui.font.normal
 	newobj.draw = gui.draw.view
 	newobj.color = {}
+	newobj.cache = {}
 	
 	return newobj
 end

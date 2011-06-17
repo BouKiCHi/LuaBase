@@ -18,7 +18,11 @@ LICENSE_DIR = license
 RELEASE_DIR = release_dir
 STARTUP = startup.lua
 RESOURCE = res
+
 LEXE_DIR = lexe
+LMOD_DIR = lmod
+LSUB_DIR = lsub
+SH_DIR   = sh
 
 EXE_PACK = $(TARGET)_$(DATE_CMD).zip
 SRC_PACK = $(TARGET)_$(DATE_CMD)_src.zip
@@ -107,6 +111,9 @@ endif
 	cp $(STARTUP) $(RELEASE_DIR)
 	cp -r $(RESOURCE) $(RELEASE_DIR)
 	cp -r $(LEXE_DIR) $(RELEASE_DIR)
+	cp -r $(LMOD_DIR) $(RELEASE_DIR)
+	cp -r $(LSUB_DIR) $(RELEASE_DIR)
+	cp -r $(SH_DIR)   $(RELEASE_DIR)
 	
 
 $(OBJDIR) :
@@ -132,6 +139,9 @@ zipsrc :
 	zip -r $(SRC_PACK) $(LICENSE_DIR)
 	zip -r $(SRC_PACK) $(RESOURCE)
 	zip -r $(SRC_PACK) $(LEXE_DIR)
+	zip -r $(SRC_PACK) $(LMOD_DIR)
+	zip -r $(SRC_PACK) $(LSUB_DIR)
+	zip -r $(SRC_PACK) $(SH_DIR)
 	
 zip : release
 	cd $(RELEASE_DIR) ; zip -r ../$(EXE_PACK) *

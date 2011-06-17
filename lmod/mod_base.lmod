@@ -121,7 +121,9 @@ function mod.update()
 		gui.update ( mod.win )
 	end
 	
-	layer.update()
+	if layer.update() then
+		graph.Update()
+	end
 	
 	if mod.checkNotify then
 		mod.checkNotify()

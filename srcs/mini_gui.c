@@ -339,10 +339,10 @@ void gui_draw_circle_fill(SDL_Surface *surface,int cx,int cy,int rad,SDL_Color c
 	j = 0 - rad;
 	k = rad * rad;
 	
-	for(i = 0; i < rad * 2; i++,j++)
+	for(i = 0; i <= rad * 2; i++,j++)
 	{
 
-		hw = sqrt( k - ( j * j ) );
+		hw = round ( sqrt( k - ( j * j ) ) );
 
 		switch(surface->format->BytesPerPixel)
 		{
@@ -383,9 +383,8 @@ void gui_draw_circle(SDL_Surface *surface,int cx,int cy,int rad,SDL_Color color)
 	
 	for(i = 0; i <= rad * 2; i++,j++)
 	{
-		
-		hw = sqrt( k - ( j * j ) );
-		
+		hw = round( sqrt( k - ( j * j ) ) );
+				
 		switch(surface->format->BytesPerPixel)
 		{
 			case 1:

@@ -1,6 +1,6 @@
 -- filer.lmod
 
-local mod = do_module("mod_base.lmod")
+local mod      = do_module("mod_base.lmod")
 local listview = do_module("listview.lmod")
 
 -- routines

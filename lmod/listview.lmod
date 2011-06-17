@@ -242,21 +242,18 @@ function mod.checkKey()
 			end
 		end
 	end
-	if key.B()
-	then
-		mod.setResult( -1 )
-		mod.doFinish()
-	end
 	
-	if key.Select()
-	then
-		mod.setResult( -2 )
-		mod.doFinish()
-	end
+	local result = 0
 	
-	if key.Start()
+	if key.B()      then result = -1 end
+	if key.Select() then result = -2 end
+	if key.Start()  then result = -3 end
+	if key.Y()      then result = -4 end
+	if key.X()      then result = -5 end
+	
+	if result < 0
 	then
-		mod.setResult( -3 )
+		mod.setResult( result )
 		mod.doFinish()
 	end
 
