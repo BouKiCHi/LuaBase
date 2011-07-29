@@ -1,0 +1,37 @@
+* how to make an gui part
+
+1. create an window object
+
+>	mod.win = gui.createWindow( mod.x , mod.y , mod.w , mod.h )
+
+ mod.x = left of window in screen
+ mod.y =  top of window in screen
+ mod.w = width of window
+ mod.h = height of window
+
+2. make an object
+
+>	mod.box = gui.createBox( x , y , mod.w , mod.h )
+x = left in window
+y = top in window
+
+3. append an object to an window object
+
+> gui.append ( mod.win , mod.box  )
+
+* primitive of gui
+
+ 1. gui object
+
+  obj.focused : draw as focused if true
+  obj.size :  table of size ( x , y , w , h )
+  obj.hide : hide if true
+  obj.font : font to draw
+  obj.draw : draw function
+  obj.color : table of colors
+  obj.cache : cache for speed up
+   
+ 
+
+
+

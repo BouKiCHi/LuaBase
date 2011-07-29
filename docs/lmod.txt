@@ -1,0 +1,47 @@
+* how to make a lmod
+
+1. create a module table 
+
+>local mod = do_module("mod_base.lmod")
+
+2. implement mod.init and mod.free if you needed
+
+ there are some values for internal :
+  mod.sw : screen width
+  mod.sh : screen height
+  mod.win : gui window object 
+
+3. implements your own routines.
+
+like this : 
+>function mod.something()
+>end
+
+ there are some functions called from internal,
+ you can hook this.
+ 
+  mod.update() : update
+  mod.checkKey() : call this if key is updated.
+  mod.interval() : call this intervally.
+  
+  there are some functions for communication with internal / other module.
+    
+  mod.doFinish() : call this if you want to  finish this module.
+  mod.setResult() : set result value
+  mod.getResult() : get result value
+  mod.isDone() : check the module is finished.
+  
+  mod.setConfigValue ( key , value ) : set config value 
+  mod.getConfigValue ( key ) : get config value.
+   
+  
+ you need to care to do not unexpected override internal functions, 
+ see mod_base.lmod for reserved functions.
+ 
+4. return module table
+
+you need this in last line of the file.
+
+> return mod
+
+

@@ -1,0 +1,123 @@
+function do_luafile( path , name )
+
+executes lua file
+
+function do_execute( name )
+
+ executes file
+
+function do_module( name )
+
+ executes file as module
+
+function file_lexefile( name )
+
+ executes file as luabase executable file
+
+function file_lmodfile( name )
+
+ executes file as luabase modfile
+
+function file_resfile( name )
+function file_respath( path )
+function file_name ( path )
+function file_dir ( path )
+function file_basename ( name )
+function file_ext ( name )
+
+function copy_object ( srcobj )
+function disp_object ( srcobj )
+
+function layer.register(t)
+function layer.update()
+function layer.updateForce()
+function layer.free()
+
+ layer stuff
+
+function font.load( size )
+function font.close( ttf )
+
+ font stuff
+
+function keyRepeat.new()
+function keyRepeat.reset( obj )
+function keyRepeat.isUpdate( obj )
+function keyRepeat.pressAnyKey ( obj )
+
+ button repeat routines
+
+function config.getConfigPath ( name )
+function config.indent( level )
+function config.tableToString ( table , lv )
+function config.save( file , table )
+function config.load( file )
+function config.test ()
+
+ configuration routines
+
+function gui.init()
+function gui.free ()
+function gui.getFont ( size )
+function gui.getLines ( obj )
+function gui.getColor ( obj , name )
+function gui.draw.view ( win , bx , by , obj )
+function gui.draw.image ( win , bx , by , obj )
+function gui.draw.text ( win , bx , by , obj )
+function gui.draw.borderPrimitive ( x , y , w , h , c1 , c2 )
+function gui.draw.border ( win , bx , by , obj )
+function gui.draw.box ( win , bx , by , obj )
+function gui.draw.scrollBar ( win , bx , by , obj )
+function gui.draw.button ( win , bx , by , obj )
+function gui.createView ( x , y , w , h )
+function gui.createImage ( x , y , image )
+function gui.createText ( x , y , string )
+function gui.createTextBox ( x , y , w, h , string )
+function gui.createScrollBar ( x , y , w , h )
+function gui.createBox ( x , y , w , h )
+function gui.createButton ( x , y , w , h , string )
+function gui.createTextEdit ( x , y , w , h , string )
+function gui.resetFocus ( win )
+function gui.getFocus ( win )
+function gui.setFocus ( win , obj )
+function gui.nextFocus ( win )
+function gui.prevFocus ( win )
+function gui.connectObject ( prev , obj )
+function gui.removeObjectFromTable ( objs , obj )
+function gui.removeObject ( win , obj )
+function gui.append( win , newobj )
+function gui.appendChild( obj , newobj )
+function gui.drawObjects ( win , bx , by , objs )
+function gui.createWindow( x , y , w , h )
+function gui.getFocusObj( win )
+function gui.getText( obj )
+function gui.setDrawer ( obj , draw )
+function gui.setText( obj , text )
+function gui.setImage ( obj , image )
+function gui.setFont( obj , fontname )
+function gui.getColorMap( obj )
+function gui.setColorMap( obj , color )
+function gui.setTextColor ( obj , color )
+function gui.setColor ( obj , name , color )
+function gui.removeColor ( obj , name , color )
+function gui.getId( obj )
+function gui.setId( obj , id )
+function gui.setScrollBar( obj , max , min , lines )
+function gui.setScrollPos( obj , pos )
+function gui.setClick ( obj , flag )
+function gui.resizeByText ( obj )
+function gui.setAssign ( obj , h , v )
+function gui.moveObject( obj , x , y )
+function gui.getSize( obj )
+function gui.setSize( obj , w , h )
+function gui.getPosition( obj )
+function gui.setPosition( obj , x , y )
+function gui.setDrawBox( obj , flag )
+function gui.setLineLim( obj , lineLim )
+function gui.setHide( obj , flag )
+function gui.viewFocus ( win , flag )
+function gui.setUpdate ( win )
+function gui.isUpdate ( win )
+function gui.update( win )
+
+ gui routines
