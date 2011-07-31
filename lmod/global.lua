@@ -504,7 +504,7 @@ function gui.draw.text ( win , bx , by , obj )
 
 	for line = 1,#lines
 	do
-		local text = graph.TextSolid ( obj.font , lines[line] , color )
+		local text = graph.Text ( obj.font , lines[line] , color )
 		
 		local tw = graph.SurfWidth( text )
 		local th = graph.SurfHeight( text )
