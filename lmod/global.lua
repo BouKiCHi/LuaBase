@@ -1,6 +1,5 @@
 -- global.lua
 
-
 -- File stuff
 
 local sysdir = system.GetExecDir()
@@ -35,6 +34,11 @@ function do_module( name )
 	return do_luafile ( file_lmodfile( name ) , name )
 end
 
+function do_submod( name )
+	return do_luafile ( file_lsubfile( name ) , name )
+end
+
+
 
 -- get full path of file
 
@@ -44,6 +48,10 @@ end
 
 function file_lmodfile( name )
 	return lmod_dir .. pathdiv .. name
+end
+
+function file_lsubfile( name )
+	return lsub_dir .. pathdiv .. name
 end
 
 function file_resfile( name )

@@ -23,7 +23,7 @@ function mod.start()
 	update = mod.update
 	
 	mod.key = keyRepeat.new()
-	mod.delay_ms = 5
+	mod.delay_ms = 10
 	
 	mod.result = nil
 	
@@ -136,9 +136,9 @@ function mod.update()
 		mod.back()
 	end
 	
-	if  keydata ~= 0 and mod.delay_ms > 0 and (not mod.win or not gui.isUpdate ( mod.win )) 
+	if  keydata == 0 and mod.delay_ms > 0 and (not mod.win or not gui.isUpdate ( mod.win )) 
 	then
-			system.Delay(mod.delay_ms)
+			system.Delay( mod.delay_ms )
 	end
 end
 

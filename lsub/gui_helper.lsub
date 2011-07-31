@@ -1,0 +1,155 @@
+-- gui_helper.lsub
+
+local mod
+local helper = {}
+
+helper.list = {}
+
+helper.row = 0
+helper.col = 0
+
+function helper.calcCol ( row )
+    helper.col = #row
+end
+
+function helper.addRow ( row )
+    table.insert ( helper.list , row )
+    helper.row = helper.row + 1
+end
+
+function helper.newRow ()
+    return {} 
+end
+
+function helper.addObject ( row , object , action )
+    local val = { obj = object , act = action }
+    table.insert ( row , val )
+end
+
+function helper.getCurrentObject()
+    return helper.rowdata[ helper.colPos ]["obj"] 
+end
+
+function helper.moveFocus()
+    local obj = helper.getCurrentObject()
+    gui.setFocus ( mod.win , obj )
+    gui.setUpdate ( mod.win )
+end
+
+function helper.moveLeft()
+    if helper.colPos > 1 then
+        helper.colPos = helper.colPos - 1
+    else
+        helper.colPos = helper.col
+    end
+    helper.moveFocus()
+end
+
+function helper.moveRight()
+    if helper.colPos < helper.col then
+        helper.colPos = helper.colPos + 1
+    else
+        helper.colPos = 1
+    end
+    helper.moveFocus()
+end
+
+function helper.moveUp()
+    if helper.rowPos > 1 then
+        helper.rowPos = helper.rowPos - 1
+    else
+        helper.rowPos = helper.row
+    end
+    helper.loadRow()
+    helper.moveFocus()
+end
+
+function helper.moveDown()
+    if helper.rowPos < helper.row then
+        helper.rowPos = helper.rowPos + 1
+    else
+        helper.rowPos = 1
+    end
+    helper.loadRow()
+    helper.moveFocus()
+end
+
+function helper.loadRow()
+    helper.rowdata = helper.list[ helper.rowPos ]
+    helper.calcCol ( helper.rowdata )
+    if helper.colPos > helper.col
+    then
+        helper.colPos = helper.col
+    end
+end
+
+function helper.initWithMod ( module )
+    mod = module
+end
+
+function helper.start ()
+
+	gui.setFocus ( mod.win , nil )
+	gui.viewFocus ( mod.win , true )
+    gui.setUpdate ( mod.win )
+
+    helper.colPos = 1
+    helper.rowPos = 1
+    helper.loadRow()
+    
+    helper.moveFocus()
+    
+end
+
+function helper.checkKey()
+    if key.Left() then helper.moveLeft() end
+    if key.Right() then helper.moveRight() end
+    if key.Up() then helper.moveUp() end
+    if key.Down() then helper.moveDown() end
+
+    if key.A() then helper.action() end
+end
+
+function helper.action()
+    local act = helper.rowdata[ helper.colPos ]["act"]
+    
+    if act then
+        act()
+    end
+end
+
+function helper.setCallback( func )
+    helper.oldNotify = mod.checkNotify
+    mod.checkNotify = func
+end
+
+function helper.restoreCallback()
+    mod.checkNotify = helper.oldNotify
+end
+
+function helper.actInputNotify()
+    if helper.keyboard.isDone()
+    then
+        local obj = helper.getCurrentObject()
+        local result = helper.keyboard.getResult()
+        gui.setText ( obj , result )
+
+        helper.keyboard.reset()
+        gui.setUpdate ( mod.win )
+        helper.restoreCallback()
+    end
+end
+
+function helper.actInput()
+    local obj = helper.getCurrentObject()
+
+    helper.keyboard = do_module ( "keyboard.lmod" )
+    
+    helper.setCallback ( helper.actInputNotify )
+    helper.keyboard.start()
+    helper.keyboard.setString( gui.getText ( obj ) )
+    
+end
+
+
+return helper

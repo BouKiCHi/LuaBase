@@ -2,6 +2,10 @@
 
 local mod = do_module("mod_base.lmod")
 
+-- ui helper 
+
+local helper = do_submod("gui_helper.lsub")
+
 -- routines
 
 
@@ -33,43 +37,46 @@ function mod.init()
 	gui.appendChild ( mod.box , mod.button )
 	gui.append ( mod.win , mod.box )
 
-	gui.setFocus ( mod.win , nil )
-	gui.viewFocus ( mod.win , true )
-	
-	mod.focusList = { nil , mod.textedit , mod.button }
-	mod.focusPos = 1
-	
-	gui.setUpdate ( mod.win )
+    
+    helper.initWithMod( mod )
 
+    local row = helper.newRow()
+    helper.addObject( row , mod.textedit , helper.actInput )
+    helper.addObject( row , mod.button , mod.actDialog )
+    helper.addRow ( row )
+    
+    helper.start()
+    
+	
 	mod.keyboard = do_module("keyboard.lmod")
-	mod.dialog = do_module("diag.lmod")
+end
+
+function mod.actDialogNotify()
+    if helper.dialog.isDone()
+    then
+        helper.restoreCallback()
+
+        if helper.dialog.getResult() == 1 then
+            mod.doFinish()
+        end
+
+        helper.dialog.reset()
+        gui.setUpdate ( mod.win )
+    end
 end
 
 
-function mod.checkNotify()
-	if mod.keyboard.isDone()
-	then
-		if gui.getFocus ( mod.win ) == mod.textedit
-		then
-			local result = mod.keyboard.getResult()
-			gui.setText ( mod.textedit , result )
-		end
-		
-		mod.keyboard.reset()
+function mod.actDialog()
+    helper.dialog = do_module ( "diag.lmod" )
 
-		gui.setUpdate ( mod.win )
-	end
-	if mod.dialog.isDone()
-	then
-		if mod.dialog.getResult() == 1 then
-			mod.doFinish()
-		end
-		mod.dialog.reset()
-		
-		gui.setUpdate ( mod.win )
-		
-	end
-	
+    helper.dialog.start()
+    helper.dialog.setMessage("QUIT THIS PROGRAM?")
+    helper.dialog.setButtons({"YES","NO"})
+
+    helper.setCallback ( mod.actDialogNotify )
+end
+
+function mod.checkNotify()
 end
 
 function mod.moveFocus()
@@ -80,45 +87,8 @@ function mod.moveFocus()
 end
 
 function mod.checkKey()
-	if key.Left() or key.Up()
-	then
-		if mod.focusPos == 1 then
-			mod.focusPos = #mod.focusList
-		else
-			mod.focusPos = mod.focusPos - 1
-		end
-		
-		mod.moveFocus()
-	end
-	
-	
-	if key.Right() or key.Down()
-	then
-		if mod.focusPos == #mod.focusList then
-			mod.focusPos = 1
-		else
-			mod.focusPos = mod.focusPos + 1
-		end
-		
-		mod.moveFocus()
-	end
-		
+    helper.checkKey()
 
-	if key.A() 
-	then
-		if gui.getFocus ( mod.win ) == mod.textedit 
-		then
-			mod.keyboard.start()
-			mod.keyboard.setString( gui.getText ( mod.textedit ) )
-		end
-		if gui.getFocus ( mod.win ) == mod.button
-		then
-			mod.dialog.start()
-			mod.dialog.setMessage("QUIT THIS PROGRAM?")
-			mod.dialog.setButtons({"YES","NO"})
-		end
-	end
-	
 	if key.Select()
 	then
 		mod.doFinish()
