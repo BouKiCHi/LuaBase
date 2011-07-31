@@ -768,6 +768,45 @@ static int gfx_Text(lua_State *L)
 	return 1;
 }
 
+// @function gfx.TextSolid
+// @format   surface = gfx.TextSolid( font , text , color )
+// @describe Draw text from specified parameters
+// @version  1.0
+// @in       
+// @out      
+// @end
+static int gfx_TextSolid(lua_State *L)
+{
+	
+	TTF_Font *ttffont = lua_touserdata(L,1);
+	const char *msg   = lua_tostring(L,2);
+	SDL_Color *color  = lua_touserdata(L,3);
+	
+	if (!ttffont || !msg || !color)
+	{
+		// printf("gfx_Text : null\n");
+		return 0;
+	}
+	
+	SDL_Surface *ttfsurf = TTF_RenderUTF8_Solid ( ttffont , msg , *color );
+	
+	if (ttfsurf)
+	{
+		SDL_Surface **surf = (SDL_Surface **)lua_newuserdata(L,sizeof(SDL_Surface **));		
+		*surf = ttfsurf;
+		
+		lua_newtable(L);
+		lua_pushliteral(L,"__gc");
+		lua_pushcfunction(L,gfx_FreeSurf);
+		lua_rawset(L,-3);
+		lua_setmetatable(L,-2);
+	}
+	else
+		lua_pushnil(L);
+	
+	return 1;
+}
+
 // @function gfx.UTF8Len
 // @format   len = gfx.UTF8Len( text )
 // @describe Get length of text in UTF8 encoding
@@ -869,6 +908,7 @@ static const struct luaL_reg graph_lib[] =
 	{ "OpenFont"    , gfx_OpenFont },
 	{ "CloseFont"   , gfx_CloseFont },
 	{ "Text"        , gfx_Text },
+	{ "TextSolid"   , gfx_TextSolid },
 	{ "UTF8Len"     , gfx_UTF8Len },
 	{ "UTF8Next"    , gfx_UTF8Next },
 	{ "TextSize"    , gfx_TextSize },	

@@ -16,6 +16,8 @@ function mod.init()
 	gui.append ( mod.win , box )
 
 	mod.path = mod.getConfigValue ( "path" ) or system.GetCwd()
+
+    mod.headText = " Filer "
 	
 	mod.viewList()
 end
@@ -63,17 +65,26 @@ function mod.viewList()
 	mod.call = listview
 	listview.start()
 	listview.setTextBody( list )
-	
-	
-	listview.setHeader( " Filer " ) 
+
+    if mod.backColor
+    then
+        listview.changeBackColor( mod.backColor )
+    end
+
+    listview.setHeader( mod.headText )
 	listview.setFooter( "<<" .. mod.path .. ">>" ) 
 	
 end
 
 function mod.setTitle ( title )
-
+    mod.headText = title
 	listview.setHeader( title )
+end
 
+
+function mod.changeBackColor ( color )
+    mod.backColor = color
+    listview.changeBackColor( color )
 end
 
 function mod.readDir( path )

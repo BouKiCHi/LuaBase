@@ -1,0 +1,72 @@
+-- textview.lua
+
+local mod = do_module("listview.lmod")
+
+mod.super = {}
+mod.super.init = mod.init
+
+function mod.init()
+    mod.super.init()
+    mod.setTextMode( true )
+end
+
+function mod.lineFeed( lines , font , line )
+    local sw = mod.sw - 10
+    local lw = 0
+    local cw,ch
+    local i = 1
+    local next = 0
+    local tline = ""
+    local len = string.len ( line )
+
+    -- print("lineFeed:")
+
+    while i <= len
+    do
+        next = graph.UTF8Next ( string.sub ( line , i ) )
+
+        if next == 0 
+        then
+            break
+        end
+
+            chr = string.sub ( line , i , i + (next - 1 ))
+            cw,ch = graph.TextSize ( font , chr )
+            -- print( string.format( "i:%d,cw:%d,chr:%s,next:%d" , i , cw , chr , next ) )
+            i = i + next
+
+            if lw + cw >= sw
+            then
+                -- print("feed:")
+                table.insert( lines , tline )
+                tline = ""
+                lw = 0
+            end
+        
+            lw = lw + cw
+            tline = tline .. chr
+    end
+    table.insert( lines , tline )
+
+end        
+
+
+
+
+function mod.openText( path )
+    local font = gui.getFont( "normal" )
+    local lines = {}
+    local fp = io.open( path , "r" )
+    if fp 
+    then
+        for line in fp:lines()
+        do
+            mod.lineFeed ( lines , font , line )
+        end
+    end
+    io.close( fp )
+    mod.setTextBody( lines )
+end
+
+return mod
+

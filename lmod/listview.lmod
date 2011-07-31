@@ -38,12 +38,27 @@ function mod.init()
 
 	mod.textlines = #mod.textbody
 
+    mod.textmode = false
+
 	mod.cursor = 0	
 	mod.buildGUI()
+
 	
 	mod.curmax = mod.lines
 	mod.curofs = 0
 	mod.updateCursor()	
+end
+
+
+function mod.setTextMode( mode )
+    if mode
+    then
+        mod.textmode = true
+        gui.setHide ( mod.cursorObj , true )
+    else
+        mod.textmode = false
+        gui.setHide ( mod.cursorObj , false )
+    end
 end
 
 function mod.setTextBody ( body )
@@ -83,7 +98,8 @@ function mod.setFooter ( text )
 		mod.hasFooter = true
 		mod.footer = text
 		
-		gui.setTextColor ( mod.line_objs[ mod.lines ] , graph.Color( 0xff,0xff,0xff ) )
+		gui.setTextColor ( mod.line_objs[ mod.lines ] , 
+            graph.Color( 0xff,0xff,0xff ) )
 
 		gui.setHide ( mod.footObj , false )
 
@@ -103,7 +119,8 @@ function mod.setHeader ( text )
 		mod.hasHeader = true
 		mod.header = text
 		
-		gui.setTextColor ( mod.line_objs[1] , graph.Color( 0xff,0xff,0xff ) )
+		gui.setTextColor ( mod.line_objs[1] , 
+            graph.Color( 0xff,0xff,0xff ) )
 
 		gui.setHide ( mod.headObj , false )
 
@@ -121,6 +138,98 @@ end
 function mod.updateCursor ()
 	gui.moveObject ( mod.cursorObj , 0 , (mod.cursor + mod.curofs) * mod.ch  )	
 	gui.setUpdate( mod.win )
+end
+
+function mod.scrollPrepare ()
+    local i = 1
+    local ofs = 0
+    local h = mod.lines
+
+    if mod.hasHeader then
+    ofs = 1
+    h = h - 1
+    gui.setText( mod.line_objs [ 1 ] , mod.header )
+    end
+
+    if mod.hasFooter then
+    h = h - 1
+    gui.setText( mod.line_objs [ mod.lines ] , mod.footer )
+    end
+
+    return ofs,h
+end
+
+function mod.scrollDown( pos )
+
+    -- print("ScrollDown")
+
+    local ofs,h = mod.scrollPrepare()
+
+    -- print( string.format("ofs:%d,h:%d" , ofs , h ) )
+
+    local lobj = mod.line_objs [ 1 + ofs ]
+
+    for i = 1,h - 1
+    do
+        local obj = mod.line_objs [ i + ofs + 1 ]
+        mod.line_objs [ i + ofs ] = obj
+
+        local tx,ty = gui.getPosition ( obj )
+
+        local ny = ( i + ofs - 1 ) * mod.ch
+        gui.moveObject( obj , 0 , ny )
+
+        -- print( string.format( "xid:%d, y %d <- %d " , obj.xid , ny , ty ) )
+
+    end
+
+    mod.line_objs [ h + ofs ] = lobj
+
+    if h + pos <= mod.textlines
+    then
+        gui.setText ( lobj , mod.textbody [ h + pos ] )
+    else
+        gui.setText ( lobj ,"" )
+    end
+
+    gui.moveObject( lobj , 0 , ( h + ofs - 1 ) * mod.ch )	        
+end
+
+
+function mod.scrollUp( pos )
+
+    -- print("ScrollUp")
+
+    local ofs,h = mod.scrollPrepare()
+
+    -- print( string.format("ofs:%d,h:%d" , ofs , h ) )
+
+    local lobj = mod.line_objs [ h + ofs ]
+
+    for i = h - 1,1,-1
+    do
+        local obj = mod.line_objs [ i + ofs ]
+        mod.line_objs [ i + ofs + 1 ] = obj
+
+        local tx,ty = gui.getPosition ( obj )
+
+        local ny = ( i + ofs ) * mod.ch
+        gui.moveObject( obj , 0 , ny )
+
+        -- print( string.format( "xid:%d , y %d <- %d " , obj.xid , ny , ty ) )
+
+    end
+
+    mod.line_objs [ 1 + ofs ] = lobj
+
+    if 1 + pos <= mod.textlines
+    then
+        gui.setText ( lobj , mod.textbody [ 1 + pos ] )
+    else
+        gui.setText ( lobj ,"" )
+    end
+    
+    gui.moveObject( lobj , 0 , ( 1 + ofs - 1 ) * mod.ch )	        
 end
 
 function mod.updateText( pos )
@@ -149,9 +258,12 @@ function mod.updateText( pos )
 			gui.setText ( mod.line_objs[ i + ofs ] , "" )
 		end
 	end
-	
 end
 
+function mod.changeBackColor ( color )
+    gui.setColor ( mod.headObj , "back" , color )		
+    gui.setColor ( mod.footObj , "back" , color )
+end
 
 function mod.buildGUI()
 
@@ -170,6 +282,7 @@ function mod.buildGUI()
 	for i = 0 , mod.lines -1
 	do
 		local obj = gui.createText ( 0 , i * mod.ch  , "" )	
+        obj.xid = i
 		gui.appendChild( view , obj )
 		table.insert ( mod.line_objs , obj )		
 	end
@@ -217,13 +330,14 @@ function mod.checkKey()
 	if key.Up()
 	then
 	
-		if mod.cursor > 0 then
+		if not mod.textmode and mod.cursor > 0 then
 			mod.cursor = mod.cursor - 1
 			mod.updateCursor()
 		else
 			if mod.pos > 0 then
 				mod.pos = mod.pos - 1
-				mod.updateText ( mod.pos )
+				mod.scrollUp ( mod.pos )
+				-- mod.updateText ( mod.pos )
 				gui.setScrollPos ( mod.bar , mod.pos )
 			end
 		end
@@ -231,13 +345,15 @@ function mod.checkKey()
 
 	if key.Down()
 	then
-		if mod.cursor + 1 < mod.curmax and mod.cursor + 1 < mod.textlines then
+		if not mod.textmode and mod.cursor + 1 < mod.curmax and mod.cursor + 1 < mod.textlines then
 			mod.cursor = mod.cursor + 1
 			mod.updateCursor()
 		else
-			if mod.pos + mod.lines < mod.textlines then
+            -- print("mod.lines : " .. mod.lines .. ",pos:" .. mod.pos .. ",lines:" .. mod.textlines) 
+			if mod.pos + mod.curmax < mod.textlines then
 				mod.pos = mod.pos + 1
-				mod.updateText ( mod.pos )
+                mod.scrollDown( mod.pos )
+				-- mod.updateText ( mod.pos )
 				gui.setScrollPos ( mod.bar , mod.pos )
 			end
 		end

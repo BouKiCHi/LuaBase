@@ -14,7 +14,6 @@ DATE_CMD = `date "+%y%m%d"`
 README = README
 MAKEFILE = Makefile
 DOCS_DIR = docs
-LICENSE_DIR = license 
 RELEASE_DIR = release_dir
 STARTUP = startup.lua
 RESOURCE = res
@@ -105,7 +104,7 @@ ifneq ($(TARGET),$(TARGET_RELEASE))
 else
 	cp $(TARGET) $(RELEASE_DIR)
 endif
-	cp -r $(LICENSE_DIR) $(RELEASE_DIR)
+	cp -r $(DOCS_DIR) $(RELEASE_DIR)
 	cp $(README) $(RELEASE_DIR)
 
 	cp $(STARTUP) $(RELEASE_DIR)
@@ -114,7 +113,6 @@ endif
 	cp -r $(LMOD_DIR) $(RELEASE_DIR)
 	cp -r $(LSUB_DIR) $(RELEASE_DIR)
 	cp -r $(SH_DIR)   $(RELEASE_DIR)
-	
 
 $(OBJDIR) :
 	mkdir $(OBJDIR)
@@ -136,7 +134,7 @@ zipsrc :
 	zip $(SRC_PACK) $(STARTUP)
 	zip $(SRC_PACK) $(SRCFILES)
 	zip $(SRC_PACK) $(SCRIPTS)
-	zip -r $(SRC_PACK) $(LICENSE_DIR)
+	zip -r $(SRC_PACK) $(DOCS_DIR)
 	zip -r $(SRC_PACK) $(RESOURCE)
 	zip -r $(SRC_PACK) $(LEXE_DIR)
 	zip -r $(SRC_PACK) $(LMOD_DIR)

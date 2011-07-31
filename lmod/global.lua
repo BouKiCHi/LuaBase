@@ -487,20 +487,24 @@ function gui.draw.text ( win , bx , by , obj )
 	local x = bx + obj.size.x
 	local y = by + obj.size.y
 
+    -- if not updated any text stuff, then use cache
 	if obj.cache.text == obj.string and obj.cache.textColor == color
 	then
 		for k,v in pairs(obj.cache.textsurf)
 		do
-			graph.Blit( v.text , v.x , v.y )
+			graph.Blit( v.text , v.x + x , v.y + y )
 		end
 		return
 	end
 	
 	local textsurf = {}
 	
+    local tx = x
+    local ty = y
+
 	for line = 1,#lines
 	do
-		local text = graph.Text ( obj.font , lines[line] , color )
+		local text = graph.TextSolid ( obj.font , lines[line] , color )
 		
 		local tw = graph.SurfWidth( text )
 		local th = graph.SurfHeight( text )
@@ -518,23 +522,23 @@ function gui.draw.text ( win , bx , by , obj )
 
 		if obj.assign.horizon == gui.assign.center 
 		then
-			x = x + (w/2) - (tw/2)
+			tx = tx + (w/2) - (tw/2)
 		elseif obj.assign.horizon == gui.assign.right
 		then
-			x = x + w - tw
+			tx = tx + w - tw
 		end
 		
 		if obj.assign.vertical == gui.assign.center
 		then
-			y = y + (h/2) - (tmh / 2) + (th * (line-1))
+			ty = ty + (h/2) - (tmh / 2) + (th * (line-1))
 		elseif obj.assign.vertical == gui.assign.bottom
 		then
-			y = y + h - tmh + (th * (line-1))
+			ty = ty + h - tmh + (th * (line-1))
 		end
 		
-		graph.Blit( text , x , y )
+		graph.Blit( text , tx , ty )
 		
-		table.insert ( textsurf, { text = text , x = x , y = y } )
+		table.insert ( textsurf, { text = text , x = tx - x , y = ty - y } )
 		
 	end
 	
