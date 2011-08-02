@@ -18,8 +18,7 @@ function mod.init()
 
 	mod.call = nil
 	
-	mod.readIconFiles( file_respath( "icon" )  )
-
+	mod.readIconFiles( file_respath( "icon32" )  )
 
 	mod.col = 4
 	mod.row = 4
@@ -218,6 +217,9 @@ function mod.moveDown()
 	end
 end
 
+function mod.currentItemPos()
+    return mod.icon.top + (((mod.cursor.y-1) * mod.col) + (mod.cursor.x-1) )
+end
 
 function mod.checkKey()
 	if key.Left()
@@ -240,8 +242,8 @@ function mod.checkKey()
 	
 	if key.A()
 	then
-		local result = mod.icon.top + (((mod.cursor.y-1) * mod.col) + (mod.cursor.x-1) )
-		mod.setResult(result)
+		local result = mod.currentItemPos()
+		mod.setResult( result )
 		mod.doFinish()
 	end
 	if key.Select()
