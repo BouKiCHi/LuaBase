@@ -352,6 +352,7 @@ gui.draw = {}
 
 -- Initialize
 function gui.init()
+    gui.idcount = 0
 
 	if not gui.font then
 		gui.font = {}
@@ -559,7 +560,7 @@ end
 function gui.draw.borderPrimitive ( x , y , w , h , c1 , c2 )
 	graph.Line ( x , y , x + w , y , c1 )
 	graph.Line ( x , y , x , y + h , c1 )
-	graph.Line ( x + w , y , x + w , y + h , c2 )
+    graph.Line ( x + w , y , x + w , y + h , c2 )
 	graph.Line ( x , y + h , x + w , y + h , c2 )
 end
 
@@ -578,7 +579,7 @@ function gui.draw.border ( win , bx , by , obj )
 	
 	
 	gui.draw.borderPrimitive ( bx + size.x , by + size.y , 
-		size.w , size.h , color_bright , color_dark )
+		size.w, size.h - 1, color_bright , color_dark )
 
 	graph.Unlock()
 end
@@ -595,9 +596,9 @@ function gui.draw.box ( win , bx , by , obj )
 	local y = by + size.y
 	
 	local fw = size.w
-	local hs = (size.h/2)
+	local hs = math.floor(size.h/2)
 	local hse = size.h-hs
-	
+    
 	local color = gui.getColor ( obj , "back" )
 	
 	if win.focusView and obj.focused then
@@ -615,6 +616,7 @@ function gui.draw.box ( win , bx , by , obj )
 	if obj.cache.color ~= color or obj.cache.w ~= size.w or obj.cache.h ~= size.h 
 	then
 		graph.Lock()
+        
 
 		if type(color) == "table" then
 			graph.BoxGrad( x , y , fw , hs , color[1] , color[2] )
@@ -626,8 +628,8 @@ function gui.draw.box ( win , bx , by , obj )
 		graph.Unlock()
 		gui.draw.border ( win , bx , by , obj )
 
-		obj.cache.surf = graph.CreateSurf( size.w + 1, size.h + 1 ) 
-		graph.CopySurf( graph.MainSurf() , obj.cache.surf , x , y , size.w + 1, size.h + 1 )
+		obj.cache.surf = graph.CreateSurf( size.w , size.h  ) 
+		graph.CopySurf( graph.MainSurf() , obj.cache.surf , x , y , size.w, size.h  )
 		
 		obj.cache.color = color
 		obj.cache.w = size.w
@@ -655,8 +657,9 @@ function gui.draw.scrollBar ( win , bx , by , obj )
 
 	local color = gui.getColor ( obj , "scroll" )
 	
-	local bar_h   = (obj.lines / (obj.max - obj.min)) * h 
-	local bar_pos =  obj.pos   / (obj.max - obj.min)  * h
+	local bar_h   = math.floor((obj.lines / (obj.max - obj.min)) * h)
+	local bar_pos = math.floor( obj.pos   / (obj.max - obj.min)  * h )
+
 	
 	graph.BoxFill( x , y , w , h , color.back )
 	graph.BoxFill( x , y + bar_pos , w , bar_h , color.bar )
@@ -687,10 +690,10 @@ function gui.createView ( x , y , w , h )
 
 	newobj.focused = false
 	newobj.size = {}
-	newobj.size.x = x
-	newobj.size.y = y
-	newobj.size.w = w
-	newobj.size.h = h
+	newobj.size.x = math.floor(x)
+	newobj.size.y = math.floor(y)
+	newobj.size.w = math.floor(w)
+	newobj.size.h = math.floor(h)
 	
 	newobj.hide = false
 	
@@ -698,6 +701,10 @@ function gui.createView ( x , y , w , h )
 	newobj.draw = gui.draw.view
 	newobj.color = {}
 	newobj.cache = {}
+    
+    newobj.idcount = gui.idcount
+    
+    gui.idcount = gui.idcount + 1
 	
 	return newobj
 end
@@ -1021,7 +1028,7 @@ function gui.resizeByText ( obj )
 		
 		graph.FreeSurf ( text )
 	end
-
+    
 	obj.size.w = w
 	obj.size.h = h
 	
@@ -1037,8 +1044,8 @@ function gui.setAssign ( obj , h , v )
 end
 
 function gui.moveObject( obj , x , y )
-	obj.size.x = x
-	obj.size.y = y
+	obj.size.x = math.floor(x)
+	obj.size.y = math.floor(y)
 end
 
 
@@ -1047,8 +1054,8 @@ function gui.getSize( obj )
 end
 
 function gui.setSize( obj , w , h )
-	obj.size.w = w 
-	obj.size.h = h
+	obj.size.w = math.floor(w) 
+	obj.size.h = math.floor(h)
 end
 
 
@@ -1057,8 +1064,8 @@ function gui.getPosition( obj )
 end
 
 function gui.setPosition( obj , x , y )
-	obj.size.x = x
-	obj.size.y = y
+	obj.size.x = math.floor ( x )
+	obj.size.y = math.floor ( y )
 end
 
 

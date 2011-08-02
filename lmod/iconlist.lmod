@@ -103,10 +103,9 @@ function mod.makeIconTable()
 
 			gui.setAssign ( text , gui.assign.center , gui.assign.top )
 			gui.setFont ( text , "small" )
-			gui.resizeByText ( text )
 
-			local w,h = gui.getSize ( text )			
-			gui.setPosition ( text , ix + (iw / 2) - (w/2) , iy + ih)			
+			gui.setPosition ( text , ix + (iw / 2) , iy + ih)
+                        
 			gui.appendChild( mod.box , text )
 			
 
@@ -145,7 +144,10 @@ end
 function mod.appearCursor()
 	local obj = mod.tobjs [ ((mod.cursor.y-1) * mod.col) + mod.cursor.x ]
 	gui.setDrawBox( obj , true )
-	
+    
+    local x,y = gui.getPosition(obj)
+    local w,h = gui.getSize(obj)
+    
 	gui.setFocus ( mod.win , obj )
 	gui.setUpdate( mod.win )
 
