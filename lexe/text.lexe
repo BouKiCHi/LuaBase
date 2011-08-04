@@ -3,20 +3,20 @@
 local mod = do_module("mod_base.lmod")
 
 function mod.init()
+    mod.titleColor = {
+            graph.Color( 0xff,0xff,0xff ),
+            graph.Color( 0x80,0xf0,0x80 ),
+            graph.Color( 0x30,0x80,0x30 )
+    }
     mod.submod = nil
     mod.startFiler()
 end
 
 function mod.startFiler()
-    local color = {
-            graph.Color( 0xff,0xff,0xff ),
-            graph.Color( 0x80,0xf0,0x80 ),
-            graph.Color( 0x30,0x80,0x30 )
-    }
 
     mod.filer = do_module("filer.lmod")
     mod.filer.start()
-    mod.filer.changeBackColor ( color )
+    mod.filer.changeBackColor ( mod.titleColor )
     mod.filer.setTitle("text.lexe : choose text file...")
 end
 
@@ -25,6 +25,8 @@ function mod.openText( path )
     mod.submod = do_module ( "textview.lmod" )
     mod.submod.start()
     mod.submod.openText( path )
+    mod.submod.changeBackColor ( mod.titleColor )
+    mod.submod.setHeader("TEXT:" .. file_name( path ) )
 end
 
 function mod.checkNotify()
