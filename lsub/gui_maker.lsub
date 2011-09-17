@@ -1,0 +1,85 @@
+-- gui_maker.lsub
+
+local maker = {}
+
+-- routines
+function maker.makeObjects ( w , h , list  ) 
+    local objs = {}
+    for k,v in pairs ( list ) do
+        
+        if v.xpct ~= nil then
+            v.x = math.floor ( w * v.xpct )
+        end
+        if v.ypct ~= nil then
+            v.y = math.floor ( h * v.ypct )
+        end
+        
+        if v.wpct ~= nil then
+            v.w = math.floor( w * v.wpct )
+        end
+        if v.hpct ~= nil then
+            v.h = math.floor( h * v.hpct )
+        end
+        
+        if v.kind == "Button" then 
+            objs[ v.id ] = maker.makeButton ( v )
+        end
+        
+        if v.kind == "TextEdit" then
+            objs[ v.id ] = maker.makeTextEdit ( v )
+        end
+
+        if v.kind == "Text" then
+            objs[ v.id ] = maker.makeText ( v )
+        end
+        
+    end
+    
+    return objs
+end
+
+function maker.makeBox ( w , h , objs )
+    local box = gui.createBox( 0 , 0 , w , h )
+    for k,v in pairs ( objs ) do
+        gui.appendChild ( box , v )
+    end
+    
+    return box
+end
+
+function maker.setAction ( helper , list , objs )
+    local rows = {}
+
+    for k,v in pairs ( list ) do
+        if v.row ~= nil then
+            local row = rows [ v.row ]
+            if row == nil then
+                row = helper.newRow()
+                rows [ v.row ] = row
+            end
+            helper.addObject ( row , objs [ v.id ] , v.act )
+        end    
+    end
+    
+    for k,v in pairs ( rows ) do
+        helper.addRow ( v )
+    end
+    
+end
+
+function maker.makeText ( v )    
+    return gui.createText ( v.x , v.y , v.value )
+end
+
+function maker.makeButton ( v )
+    return gui.createButton ( v.x , v.y , v.w , v.h , v.value )
+end
+
+function maker.makeTextEdit ( v )
+    return gui.createTextEdit ( v.x , v.y , v.w , v.h , v.value )
+end
+
+
+return maker
+    
+    

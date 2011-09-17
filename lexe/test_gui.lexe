@@ -1,54 +1,47 @@
 -- test_gui.lexe
 
-local mod = do_module("mod_base.lmod")
+local mod = do_module( "mod_base.lmod" )
 
--- ui helper 
+-- ui sub modules 
 
-local helper = do_submod("gui_helper.lsub")
+local helper = do_submod( "gui_helper.lsub" )
+local maker = do_submod( "gui_maker.lsub" )
 
 -- routines
 
 
 function mod.init()
-
 	mod.y = 16
 	mod.h = mod.sh - 16
-	
+
 	mod.win  = gui.createWindow( mod.x , mod.y , mod.w , mod.h )
-	mod.box  = gui.createBox( 0 , 0 , mod.w , mod.h )
-		
-	
-	local x = mod.w * 0.1
-	local y = mod.h * 0.1
-
-	mod.text = gui.createText ( x , y , "PLEASE ENTER YOUR NAME" )
-	
-	y = y + 25
-	
-	mod.textedit = gui.createTextEdit ( x , y , mod.w - (x*2) , 20 , "None" )
-
-	x = mod.w * 0.8
-	y = mod.h * 0.8
-
-	mod.button = gui.createButton ( x , y , 30 , 20 , "OK" )
-
-	gui.appendChild ( mod.box , mod.text )
-	gui.appendChild ( mod.box , mod.textedit )
-	gui.appendChild ( mod.box , mod.button )
-	gui.append ( mod.win , mod.box )
-
+    
+    local list = {
+        { xpct = 0.1 , ypct = 0.1 , 
+          id = "text01" , kind = "Text" ,  
+          value = "PLEASE ENTER YOUR NAME" } , 
+        { xpct = 0.1 , ypct = 0.2 , wpct = 0.8 , hpct = 0.1 , 
+          id = "edit01" , kind = "TextEdit" , 
+          row = 1 , act = helper.actInput ,
+          value = "None" } ,
+        { xpct = 0.8 , ypct = 0.8 , wpct = 0.1 , hpct = 0.1 , 
+          id = "button01" , kind = "Button" ,
+           row = 1 , act = mod.actDialog , 
+          value = "OK" } }
+        
+    local objs = maker.makeObjects ( mod.w , mod.h , list )
+   
+    
+	gui.append ( mod.win , maker.makeBox( mod.w , mod.h , objs ) )
     
     helper.initWithMod( mod )
-
-    local row = helper.newRow()
-    helper.addObject( row , mod.textedit , helper.actInput )
-    helper.addObject( row , mod.button , mod.actDialog )
-    helper.addRow ( row )
     
+    maker.setAction ( helper , list , objs )
+
     helper.start()
     
 	
-	mod.keyboard = do_module("keyboard.lmod")
+	mod.keyboard = do_module( "keyboard.lmod" )
 end
 
 function mod.actDialogNotify()
@@ -56,7 +49,8 @@ function mod.actDialogNotify()
     then
         helper.restoreCallback()
 
-        if helper.dialog.getResult() == 1 then
+        if helper.dialog.getResult() == 1 
+        then
             mod.doFinish()
         end
 
@@ -74,16 +68,6 @@ function mod.actDialog()
     helper.dialog.setButtons({"YES","NO"})
 
     helper.setCallback ( mod.actDialogNotify )
-end
-
-function mod.checkNotify()
-end
-
-function mod.moveFocus()
-	local obj = mod.focusList [ mod.focusPos ]
-	
-	gui.setFocus ( mod.win , obj )
-	gui.setUpdate ( mod.win )
 end
 
 function mod.checkKey()
